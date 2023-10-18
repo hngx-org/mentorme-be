@@ -56,10 +56,13 @@ class EmailManager:
                 html_message = render_to_string(
                     template_name=template_name, context=context
                 )
+
             except TemplateDoesNotExist as error:
                 raise EmailManagerError from error
             
             try:
+
+
                 send_mail(
                     from_email=settings.EMAIL_HOST_USER,
                     subject=subject,
