@@ -41,6 +41,8 @@ INSTALLED_APPS = [
 
     #Project Apps
     'users',
+    'mentoring',
+    'community',
 
     #restapi libraries
     'rest_framework',
