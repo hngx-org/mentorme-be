@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 
 class CustomUser(AbstractUser):
     """object model for the user entity"""
-    
+    username = None
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
     first_name = models.CharField(max_length=225)
     last_name = models.CharField(max_length=225)
