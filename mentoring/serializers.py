@@ -24,90 +24,56 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
         return value
     
-class MentorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Mentor
-        fields = '__all__'
-    
-    def validate_experience(self, value):
-        if value < 0:
-            raise serializers.ValidationError("Experience cannot be negative.")
-        return value
-
-class EducationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Education
-        fields = '__all__'
-
-class CompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Company
-        fields = ('id', 'name')
-
-class IndustrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Industry
-        fields = ('id', 'name')
-
-class SkillSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Skill
-        fields = ('id', 'name')
-
-class SessionSerializer(serializers.ModelSerializer):
-    class Meta:
-        models = Session
-        field = '__all__'
-
-class IdentitySerializer(serializers.ModelSerializer):
-    class Meta:
-        models = Identity
-        fields = '__all__'
-
-
-class CertificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        models = Certification
-        fields = '__all__'
-
-
-class ResourceSerializer(serializers.ModelSerializer):
-    class Meta:
-        models = Resource
-        fields = '__all__'
-
-
-class MentorProfileSerializer(serializers.Serializer):
-    custom_user = CustomUserSerializer()
-    education = serializers.PrimaryKeyRelatedField(queryset=Education.objects.all())
-    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
-    industry = serializers.PrimaryKeyRelatedField(queryset=Industry.objects.all())
-    skill = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all())
-    session = serializers.PrimaryKeyRelatedField(queryset=Session.objects.all())
-    identity = serializers.PrimaryKeyRelatedField(queryset=Identity.objects.all())
-    certification = serializers.PrimaryKeyRelatedField(queryset=Certification.objects.all())
-    resource = serializers.PrimaryKeyRelatedField(queryset=Resource.objects.all())
-    mentor = serializers.PrimaryKeyRelatedField(queryset=Mentor.objects.all())
-
-    class Meta:
-        models = Mentor
-        fields = "__all__"
-
 from rest_framework import serializers
-from .models import Mentor
-
-class MentorSerializer(serializers.ModelSerializer):
+class MentorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mentor
-        fields = (
-            'id', 'user', 'job_title', 'company', 'industry', 'experience',
-            'skills', 'linkedin', 'twitter', 'other_links', 'mentoring_exp',
-            'mentoring_type', 'availability', 'prefered_starttime', 'prefered_endtime',
-            'prefered_days', 'education', 'certification', 'identity', 'status',
-            'resources', 'sessions'
-        )
-        exclude = ('id',)
-        
+        fields = '__all__'
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and isinstance(request.user, CustomUser):
+            # Get the authenticated user's ID
+            user_id = request.user.id
+
+            # You can use the user_id to create the Mentor instance
+            education_data = validated_data.pop('education')
+            company_data = validated_data.pop('company')
+            industry_data = validated_data.pop('industry')
+            skill_data = validated_data.pop('skill')
+            session_data = validated_data.pop('session')
+            identity_data = validated_data.pop('identity')
+            certification_data = validated_data.pop('certification')
+            resource_data = validated_data.pop('resource')
+
+            # Create or retrieve related instances
+            education, created = Education.objects.get_or_create(**education_data)
+            company_t, created = Company.objects.get_or_create(**company_data)
+            industry, created = Industry.objects.get_or_create(**industry_data)
+            skill, created = Skill.objects.get_or_create(**skill_data)
+            session, created = Session.objects.get_or_create(**session_data)
+            identity, created = Identity.objects.get_or_create(**identity_data)
+            certification, created = Certification.objects.get_or_create(**certification_data)
+            resource, created = Resource.objects.get_or_create(**resource_data)
+
+            mentor = Mentor.objects.create(
+                user_id=user_id,  # Assign the user's ID
+                education=education.id,
+                company_=company_t.id,
+                industry=industry.id,
+                skill=skill.id,
+                session=session.id,
+                identity=identity.id,
+                certification=certification.id,
+                resource=resource.id,
+                **validated_data
+            )
+
+            return mentor
+        else:
+            raise serializers.ValidationError("Only authenticated CustomUser can create a Mentor.")
+        return mentor
+
 from .models import Session
 
 class SessionSerializer(serializers.ModelSerializer):
