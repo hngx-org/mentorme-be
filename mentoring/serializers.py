@@ -91,7 +91,7 @@ class MentorSerializer(serializers.ModelSerializer):
         if request and hasattr(request, 'user'):
             user = request.user
 
-            validated_data['user'] = user.id
+            validated_data['user'] = user
         
         company_id = validated_data.pop('company')
         industry_id = validated_data.pop('industry')
@@ -104,14 +104,14 @@ class MentorSerializer(serializers.ModelSerializer):
 
         mentor = Mentor.objects.create(**validated_data)
 
-        mentor.user_id = user
-        mentor.company_id = company_id
-        mentor.industry_id = industry_id
-        mentor.skills_id = skills_id
-        mentor.education_id = education_id
-        mentor.certification_id = certification_id
-        # mentor.identity_id = identity_id
-        # mentor.resources_id = resources_id
-        # mentor.sessions_id = sessions_id
+        # mentor.user_id = user
+        # mentor.company_id = company_id
+        # mentor.industry_id = industry_id
+        # mentor.skills_id = skills_id
+        # mentor.education_id = education_id
+        # mentor.certification_id = certification_id
+        # # mentor.identity_id = identity_id
+        # # mentor.resources_id = resources_id
+        # # mentor.sessions_id = sessions_id
 
         return mentor

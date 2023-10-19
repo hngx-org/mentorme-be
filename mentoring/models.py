@@ -50,7 +50,6 @@ class Education(models.Model):
 
 
 class Industry(models.Model):
-    id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -101,10 +100,10 @@ class Mentor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=255)
-    company = models.ForeignKey(Company, on_delete=models.PROTECT)
-    industry = models.ForeignKey(Industry, on_delete=models.PROTECT)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT, null=True)
+    industry = models.ForeignKey(Industry, on_delete=models.PROTECT, null=True, blank=True)
     experience = models.IntegerField(default=0)
-    skills = models.ForeignKey(Skill, on_delete=models.PROTECT)
+    skills = models.ForeignKey(Skill, on_delete=models.PROTECT, null=True)
     linkedin = models.CharField(max_length=255, blank=True, null=True)
     twitter = models.CharField(max_length=255, blank=True, null=True)
     other_links = models.CharField(max_length=255, blank=True, null=True)
@@ -114,11 +113,11 @@ class Mentor(models.Model):
     prefered_starttime = models.TimeField(blank=True, null=True)
     prefered_endtime = models.TimeField(blank=True, null=True)
     prefered_days = models.CharField(max_length=255, blank=True, null=True)
-    education = models.ForeignKey(Education, on_delete=models.PROTECT)
-    certification = models.ForeignKey(Certification, on_delete=models.PROTECT)
+    education = models.ForeignKey(Education, on_delete=models.PROTECT, null=True)
+    certification = models.ForeignKey(Certification, on_delete=models.PROTECT, null=True)
     identity = models.ForeignKey(Identity, on_delete=models.PROTECT, null=True)
     status = models.CharField(max_length=255, blank=True, null=True)
-    resources = models.ForeignKey(Resource, on_delete=models.PROTECT, null=True)
+    resources = models.ForeignKey(Resource, on_delete=models.PROTECT, null=True, blank=True)
     sessions = models.ForeignKey(Session, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
