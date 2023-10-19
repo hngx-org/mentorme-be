@@ -134,4 +134,4 @@ class Mentee(models.Model):
     goals = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.user
+        return self.title

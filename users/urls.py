@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import *
-
+from mentoring import views
 
 urlpatterns = [
     path('register', RegisterUser.as_view(), name="register"),
@@ -10,6 +10,7 @@ urlpatterns = [
     path('request-reset-password', PasswordResetRequestView.as_view(), name="reset-password"),
     path('reset-password', PasswordResetConfirmView.as_view(), name="reset-password"),
     #path('request-otp', RequestNewOTP.as_view(), name='request-otp'),
+    path('api/',include('mentoring.urls')),
 
 
 ]
