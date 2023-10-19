@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
 from users.serializers import UserSerializer
+
+
 class MentorCreationView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Mentor.objects.all()
@@ -191,6 +193,8 @@ class UpdateMenteeView(generics.UpdateAPIView):
                 serializer.save()
                 return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
         return Response({'You\'re not allowed to update another persons profile'}, status=status.HTTP_403_FORBIDDEN)
+    
+    
 class GetloggedUserView(generics.RetrieveAPIView):
     queryset=CustomUser.objects.all()
     serializer_class=UserlogSerializer
