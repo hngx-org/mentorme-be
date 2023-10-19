@@ -25,7 +25,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
     
 
-from .models import Mentor,Mentee,Session, Category
+from .models import Session, Category, Company, Industry, Mentee, Mentor,Mentee,Session, Category
 
 from users.models import CustomUser
 
@@ -135,9 +135,16 @@ class MenteeProfileAllSerializer(serializers.ModelSerializer):
 class UserlogSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['first_name','last_name','image','expertise']
+        fields=['first_name','last_name','image']
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
         fields = "__all__"
+
+class MenteeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Mentee
+        fields = "__all__"
+
