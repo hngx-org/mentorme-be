@@ -83,6 +83,8 @@ class MentorSerializer(serializers.ModelSerializer):
     certification = CertificationSerializer()
     identity = IdentitySerializer() 
     resources = ResourceSerializer()
+    sessions = SessionSerializer()
+    
     class Meta:
         model = Mentor 
         fields = '__all__'
