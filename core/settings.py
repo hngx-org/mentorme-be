@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
-    "https://mentor-me-lake.vercel.app/",
+    "https://mentor-me-lake.vercel.app",
     "http://localhost:3000",
 ]
 
@@ -68,7 +68,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware"
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
