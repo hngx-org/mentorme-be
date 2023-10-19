@@ -1,7 +1,11 @@
 from rest_framework import serializers
-from .models import Mentor,Mentee
+from .models import Mentor,Mentee,Session
 from users.models import CustomUser
 
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = '__all__'
 class MentorProfileAllSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentor

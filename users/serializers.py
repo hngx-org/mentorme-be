@@ -38,19 +38,12 @@ class LoginSerializer(TokenObtainPairSerializer):
     }
 
 
-class PassVerificationSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    verification_token = serializers.CharField()
-
-
-class PassResetSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-
 class ResendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 class VerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     verification_token = serializers.CharField()
+
+class ResetPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
