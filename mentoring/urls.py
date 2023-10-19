@@ -1,3 +1,6 @@
+from django.urls import path
+from .views import MentorCreationView
+from .views import MentorSessionList
 from django.urls import include, path
 from . import views
 
@@ -10,4 +13,8 @@ urlpatterns=[
     path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
     path("session/create/", views.SessionCreateAPIView.as_view()),
     path("category/", views.CategoryListCreateAPIView.as_view()),
+    path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
+    path("create-mentee-profile/", views.MenteeCreateAPIView.as_view()),
+    path("create-company/", views.CompanyListCreateAPIView.as_view()),
+    path('create_mentor_data/', MentorCreationView.as_view(), name='create-user-data'),
 ]
