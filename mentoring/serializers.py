@@ -33,10 +33,8 @@ class MentorProfileSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         if request and hasattr(request, 'user') and isinstance(request.user, CustomUser):
-            # Get the authenticated user's ID
             user_id = request.user.id
 
-            # You can use the user_id to create the Mentor instance
             education_data = validated_data.pop('education')
             company_data = validated_data.pop('company')
             industry_data = validated_data.pop('industry')
@@ -46,7 +44,6 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             certification_data = validated_data.pop('certification')
             resource_data = validated_data.pop('resource')
 
-            # Create or retrieve related instances
             education, created = Education.objects.get_or_create(**education_data)
             company_t, created = Company.objects.get_or_create(**company_data)
             industry, created = Industry.objects.get_or_create(**industry_data)
@@ -57,7 +54,7 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             resource, created = Resource.objects.get_or_create(**resource_data)
 
             mentor = Mentor.objects.create(
-                user_id=user_id,  # Assign the user's ID
+                user_id=user_id,
                 education=education.id,
                 company_=company_t.id,
                 industry=industry.id,
