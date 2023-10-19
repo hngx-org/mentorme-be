@@ -18,7 +18,8 @@ class RegisterSerializer(serializers.ModelSerializer):
           last_name=validated_data['last_name'],
           )
         user.set_password(validated_data['password'])
-        user.is_complete = False  
+        user.is_complete = False
+        user.is_active = False  
         user.email_verified = False  
         user
         
@@ -45,3 +46,11 @@ class PassVerificationSerializer(serializers.Serializer):
 class PassResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+
+class ResendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class VerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    verification_token = serializers.CharField()
