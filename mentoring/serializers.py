@@ -106,4 +106,11 @@ class MentorSerializer(serializers.ModelSerializer):
             'prefered_days', 'education', 'certification', 'identity', 'status',
             'resources', 'sessions'
         )
-        exclude = ('id',) 
+        exclude = ('id',)
+        
+from .models import Session
+
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = '__all__'
