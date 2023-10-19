@@ -6,7 +6,7 @@ from users.models import CustomUser
 # Create your models here.
 class Category(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -21,21 +21,6 @@ class Resource(models.Model):
 
     def __str__(self):
         return self.title
-
-class Session(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    type = models.CharField(max_length=100)
-    start_date = models.DateField()
-    start_time = models.TimeField()
-    duration = models.IntegerField()
-    no_of_sessions = models.IntegerField(null=True)
-    relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
-    occurence = models.IntegerField(null=True)
-
-    def __str__(self):
-        return self.name
 
 
 class Education(models.Model):
@@ -118,7 +103,6 @@ class Mentor(models.Model):
     identity = models.ForeignKey(Identity, on_delete=models.PROTECT, null=True)
     status = models.CharField(max_length=255, blank=True, null=True)
     resources = models.ForeignKey(Resource, on_delete=models.PROTECT, null=True, blank=True)
-    sessions = models.ForeignKey(Session, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return self.user
@@ -133,4 +117,22 @@ class Mentee(models.Model):
     goals = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.user
+         return self.title
+
+
+class Session(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    type = models.CharField(max_length=100)
+    start_date = models.DateField()
+    start_time = models.TimeField()
+    duration = models.IntegerField()
+    no_of_sessions = models.IntegerField(null=True)
+    relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
+    occurence = models.IntegerField(null=True)
+    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE)
+    mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.name
