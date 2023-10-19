@@ -20,11 +20,11 @@ class MentorCreationView(generics.CreateAPIView):
         serializer.save(user=user)
 
     def create(self, request, *args, **kwargs):
-        if isinstance(request.user, CustomUser):
-            return super().create(request, *args, **kwargs)
+        if isinstance(request.user, CustomUser) and request.user.role == "mentor":
+                return super().create(request, *args, **kwargs)
         else:
             return Response(
-                {"detail": "Only authenticated CustomUser can create a Mentor."},
+                {"error": "Permission denied. User must have role mentor."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
