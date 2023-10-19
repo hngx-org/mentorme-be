@@ -131,7 +131,7 @@ class Session(models.Model):
     no_of_sessions = models.IntegerField(null=True)
     relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
     occurence = models.IntegerField(null=True)
-    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
     mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
