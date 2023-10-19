@@ -171,13 +171,13 @@ class AllMenteeView(generics.ListAPIView):
 
 class UpdateMentorView(generics.UpdateAPIView):
     queryset=Mentor.objects.all()
-    serializer_class=MentorProfileAllSerializer
+    serializer_class=MentorUpdateSerializer
     lookup_field='id'
 
     def put(self, request, *args, **kwargs):
         instance=self.get_object()
-        if request.user == instance:
-            serializer=self.serializer_class(data=instance)
+        if request.user.email == instance.user.email:
+            serializer=self.serializer_class(instance,data=request.data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
@@ -185,13 +185,13 @@ class UpdateMentorView(generics.UpdateAPIView):
 
 class UpdateMenteeView(generics.UpdateAPIView):
     queryset=Mentee.objects.all()
-    serializer_class=MenteeProfileAllSerializer
+    serializer_class=MenteeUpdateSerializer
     lookup_field='id'
 
     def put(self, request, *args, **kwargs):
         instance=self.get_object()
-        if request.user == instance:
-            serializer=self.serializer_class(data=instance)
+        if request.user.email == instance.user.email:
+            serializer=self.serializer_class(instance,data=request.data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
@@ -201,8 +201,16 @@ class GetloggedUserView(generics.RetrieveAPIView):
     serializer_class=UserlogSerializer
     def retrieve(self, request, *args, **kwargs):
         # permission_classes=[IsAuthenticated]
-        user=request.user.email
-        response=get_object_or_404(CustomUser,email=user)
-        serializer=self.serializer_class(response)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-
+        mail=request.user.email
+        user=get_object_or_404(CustomUser,email=mail)
+        if user.role.lower() == 'mentor':
+            serializer=UserlogSerializer(user)
+            response= serializer.data
+            mentor=get_object_or_404(Mentor,user=user)
+            response['skills']=mentor.skills
+            return Response(response,status=status.HTTP_200_OK)
+        serializer=self.serializer_class(user)
+        response= serializer.data
+        mentee=get_object_or_404(Mentee,user=user)
+        response['expertise']=mentee.expertise
+        return Response(response,status=status.HTTP_200_OK)    
