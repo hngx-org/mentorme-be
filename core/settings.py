@@ -173,7 +173,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 # EMAIL_HOST = os.getenv('EMAIL_HOST')
 # EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
