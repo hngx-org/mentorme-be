@@ -105,21 +105,21 @@ class MentorSerializer(serializers.ModelSerializer):
         skills_id = validated_data.pop('skills')
         education_id = validated_data.pop('education')
         certification_id = validated_data.pop('certification')
-        # identity_id = validated_data.pop('identity')
-        # resources_id = validated_data.pop('resources')
-        # sessions_id = validated_data.pop('sessions')
+        
+        certification, created = Certification.objects.get_or_create(**certification_id)
+        industry, created = Industry.objects.get_or_create(**industry_id)
+        skills, created = Skill.objects.get_or_create(**skills_id)
+        company, created = Company.objects.get_or_create(**company_id)
+        education, created = Education.objects.get_or_create(**education_id)
+        
+        validated_data['certification'] = certification
+        validated_data['industry'] = industry        
+        validated_data['skills'] = skills
+        validated_data['company'] = company        
+        validated_data['education'] = education
 
         mentor = Mentor.objects.create(**validated_data)
 
-        # mentor.user_id = user
-        # mentor.company_id = company_id
-        # mentor.industry_id = industry_id
-        # mentor.skills_id = skills_id
-        # mentor.education_id = education_id
-        # mentor.certification_id = certification_id
-        # # mentor.identity_id = identity_id
-        # # mentor.resources_id = resources_id
-        # # mentor.sessions_id = sessions_id
 
         return mentor
 class MentorProfileAllSerializer(serializers.ModelSerializer):
