@@ -122,16 +122,16 @@ class Mentor(models.Model):
     sessions = models.ForeignKey(Session, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.user
+        return str(self.id)
 
 
 class Mentee(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     expertise = models.CharField(max_length=255)
-    company = models.ForeignKey(Company, on_delete=models.PROTECT)
+    company = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     goals = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.user
+        return self.title
