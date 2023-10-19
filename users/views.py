@@ -250,6 +250,8 @@ class VerifyEmailView(APIView):
 
             result = check_password(verification_token, token.token)
             if result == True and token.exp_date >= time.time():
+                from datetime import datetime
+
                 token.date_used = datetime.now()
                 user.is_active = True
                 user.email_verified = True
