@@ -8,5 +8,6 @@ urlpatterns=[
     path('<str:id>/mentee-update',views.UpdateMenteeView.as_view(),name='mentee-update'),
     path('profile/',views.GetloggedUserView.as_view(),name='log-profile'),
     path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
-
+    path("session/create/", views.SessionCreateAPIView.as_view()),
+    path("category/", views.CategoryListCreateAPIView.as_view()),
 ]

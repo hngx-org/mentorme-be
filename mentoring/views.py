@@ -7,8 +7,42 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from .models import Session
-from .serializers import SessionSerializer
+
+from .models import Session, Category, Mentor
+from .serializers import SessionSerializer, CategorySerializer
+
+
+# Create your views here.
+class SessionCreateAPIView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        try:
+            mentor = Mentor.objects.get(user=request.user)
+        except Mentor.DoesNotExist:
+            return Response({"detail": "Not a mentor"},
+                            status=403)
+        serializer["mentor"] = mentor
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+
+
+class CategoryListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+
 
 class MentorSessionList(generics.ListAPIView):
     serializer_class = SessionSerializer
@@ -28,7 +62,7 @@ class MentorSessionList(generics.ListAPIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
