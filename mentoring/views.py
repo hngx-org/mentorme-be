@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .models import Session, Category, Mentor
-from .serializers import SessionSerializer, CategorySerializer
+from .serializers import MentorSerializer, SessionSerializer, CategorySerializer
 
 
 # Create your views here.
@@ -62,3 +62,8 @@ class MentorSessionList(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class GetMentorApiView(generics.ListAPIView):
+    queryset= Mentor.objects.all()
+    serializer_class= MentorSerializer

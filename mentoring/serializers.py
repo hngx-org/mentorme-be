@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Session, Category
+from .models import Mentor, Session, Category
 
 
 class SessionSerializer(serializers.ModelSerializer):
@@ -17,3 +17,9 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+
+class MentorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mentor
+        fields = "__all__"
+
