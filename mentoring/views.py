@@ -3,8 +3,10 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Session, Category, Mentor
-from .serializers import SessionSerializer, CategorySerializer
+from .models import Session, Category, Mentor, Company, Industry, Mentee
+from users.models import CustomUser
+from .serializers import SessionSerializer, CategorySerializer, CompanySerializer, IndustrySerializer, MenteeSerializer
+from users.serializers import UserSerializer
 
 
 # Create your views here.
@@ -62,3 +64,76 @@ class MentorSessionList(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class CompanyListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+    
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+
+
+class IndustryListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Industry.objects.all()
+    serializer_class = IndustrySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+    
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+
+
+class MenteeCreateAPIView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        user_serializer = UserSerializer(data=request.data)
+        user_serializer.is_valid(raise_exception=True)
+        user = CustomUser.objects.get(email=request.user.email)
+
+        user.first_name = user_serializer.data['first_name']
+        user.last_name = user_serializer.data['last_name']
+        user.image = user_serializer.data['image']
+        user.gender = user_serializer['gender']
+        user.country = user_serializer['country']
+        user.bio = user_serializer['bio']
+        user.is_complete = True
+        user.save()
+        
+
+
+        # Extract user data that wasn't used during user creation
+        remaining_data = {
+            key: value for key, value in request.data.items()
+            if key not in user_serializer.Meta.fields
+        }
+
+        mentee_data = request.data.get('mentee_data', {})  # Extract mentee-specific data
+        mentee_data.update(remaining_data)  # Add remaining data to the mentee data
+        company = Company.objects.get(id=mentee_data['company'])
+        mentee_data['company'] = company.id
+        mentee_data['user'] = user.id
+
+        mentee_serializer = MenteeSerializer(data=mentee_data)
+        mentee_serializer.is_valid(raise_exception=True)
+        mentee = mentee_serializer.save()
+
+        return Response({
+            'user': user_serializer.data,
+            'mentee': mentee_serializer.data
+        }, status=status.HTTP_201_CREATED)
+        
+
