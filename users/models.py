@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
     password = models.CharField(max_length=255, blank=False)
     email_verified = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
-
+    role = models.CharField(max_length=225, default='null')
 
     objects = CustomUserManager()
 
