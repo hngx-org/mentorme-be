@@ -15,4 +15,4 @@ class MenteeProfileAllSerializer(serializers.ModelSerializer):
 class UserlogSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['first_name','last_name','image','stack']
+        fields=['first_name','last_name','image','expertise']

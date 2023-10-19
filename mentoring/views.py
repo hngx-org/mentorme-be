@@ -30,16 +30,18 @@ class UpdateMentorView(generics.UpdateAPIView):
         return Response({'You\'re not allowed to update another persons profile'}, status=status.HTTP_403_FORBIDDEN)
 
 class UpdateMenteeView(generics.UpdateAPIView):
-    queryset=Mentor.objects.all()
+    queryset=Mentee.objects.all()
     serializer_class=MenteeProfileAllSerializer
     lookup_field='id'
 
     def put(self, request, *args, **kwargs):
         instance=self.get_object()
-        serializer=self.serializer_class(data=instance)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        if request.user == instance:
+            serializer=self.serializer_class(data=instance)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+        return Response({'You\'re not allowed to update another persons profile'}, status=status.HTTP_403_FORBIDDEN)
 class GetloggedUserView(generics.RetrieveAPIView):
     queryset=CustomUser.objects.all()
     serializer_class=UserlogSerializer
