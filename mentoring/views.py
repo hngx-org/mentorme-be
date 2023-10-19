@@ -64,6 +64,7 @@ class MentorSessionList(generics.ListAPIView):
         return Response(serializer.data)
 
 
-class GetMentorApiView(generics.ListAPIView):
+class GetMentorApiView(generics.RetrieveAPIView):
     queryset= Mentor.objects.all()
     serializer_class= MentorSerializer
+    lookup_field = "pk"
