@@ -35,7 +35,6 @@ class Education(models.Model):
 
 
 class Industry(models.Model):
-    id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -51,7 +50,7 @@ class Company(models.Model):
 
 
 class Skill(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -86,10 +85,10 @@ class Mentor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=255)
-    company = models.ForeignKey(Company, on_delete=models.PROTECT)
-    industry = models.ForeignKey(Industry, on_delete=models.PROTECT)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT, null=True)
+    industry = models.ForeignKey(Industry, on_delete=models.PROTECT, null=True, blank=True)
     experience = models.IntegerField(default=0)
-    skills = models.ForeignKey(Skill, on_delete=models.PROTECT)
+    skills = models.ForeignKey(Skill, on_delete=models.PROTECT, null=True)
     linkedin = models.CharField(max_length=255, blank=True, null=True)
     twitter = models.CharField(max_length=255, blank=True, null=True)
     other_links = models.CharField(max_length=255, blank=True, null=True)
@@ -99,14 +98,14 @@ class Mentor(models.Model):
     prefered_starttime = models.TimeField(blank=True, null=True)
     prefered_endtime = models.TimeField(blank=True, null=True)
     prefered_days = models.CharField(max_length=255, blank=True, null=True)
-    education = models.ForeignKey(Education, on_delete=models.PROTECT)
-    certification = models.ForeignKey(Certification, on_delete=models.PROTECT)
-    identity = models.ForeignKey(Identity, on_delete=models.PROTECT)
+    education = models.ForeignKey(Education, on_delete=models.PROTECT, null=True)
+    certification = models.ForeignKey(Certification, on_delete=models.PROTECT, null=True)
+    identity = models.ForeignKey(Identity, on_delete=models.PROTECT, null=True)
     status = models.CharField(max_length=255, blank=True, null=True)
-    resources = models.ForeignKey(Resource, on_delete=models.PROTECT)
+    resources = models.ForeignKey(Resource, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        return self.user
+        return str(self.id)
 
 
 class Mentee(models.Model):
@@ -132,7 +131,7 @@ class Session(models.Model):
     no_of_sessions = models.IntegerField(null=True)
     relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
     occurence = models.IntegerField(null=True)
-    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
     mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
