@@ -4,21 +4,27 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from rest_framework.decorators import action
+from drf_yasg.utils import swagger_auto_schema
 
 #django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.db.models import Q
-
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.sites.shortcuts import get_current_site
 
 #local imports
-from .serializers import RegisterSerializer, LoginSerializer, PassVerificationSerializer, PassResetSerializer, VerificationSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ResetPasswordSerializer, VerificationSerializer, ResendOTPSerializer
 from .utils import EmailManager, generate_token, BaseResponse, abort
-from .models import Tokens
+from .models import Tokens, CustomUser
+from .token import account_activation_token
 
 import time
 import random
-import datetime
+from datetime import datetime
 
 User = get_user_model()
 
@@ -100,7 +106,7 @@ class LoginView(TokenObtainPairView):
             except User.DoesNotExist:
                 raise AuthenticationFailed('Invalid email or password.')
 
-            
+            #TODO: add a user serializer to return the user data
             response =  super().post(request, *args, **kwargs)
 
             responseData = {
@@ -111,132 +117,21 @@ class LoginView(TokenObtainPairView):
         except AuthenticationFailed as e:
             return abort(401, (e.detail))
 
-
-class PasswordResetRequestView(APIView):
-    """
-    View to request for an otp to reset password
-    """
-    authentication_classes = ()
-    permission_classes = ()
-
-    def post(self, request):
-        email = request.data.get('email')
-        try:
-            user = User.objects.get(email=email)
-        
-
-            
-            token = str(random.randint(1000, 9999))
-            # OTP token
-            new_token = Tokens()
-            new_token.email = email
-            new_token.action = 'resetpassword'
-            new_token.token = token
-            new_token.exp_date = time.time() + 300
-            new_token.save()
-            try:
-                """Send otp to sign up user"""
-                EmailManager.send_mail(
-                    subject=f"MentorMe - Reset Password",
-                    recipients=[new_token.email],
-                    template_name="user_reset_password.html",
-                    context={"user": user.id, "token":token}
-                )
-
-            except Exception as error:
-                print(error)
-            
-            data = {
-                'Token': token
-            }
-            base_response = BaseResponse(None, None, 'Reset OTP sent to email')
-            return Response(base_response.to_dict(), status=status.HTTP_201_CREATED)
-        except User.DoesNotExist:
-            return abort(404, 'An account with this email does not exist.')
-        
-
-class PasswordResetConfirmView(APIView):
-    """
-    This view is used to verify a reset password token
-    """
-    authentication_classes = ()
-    permission_classes = ()
-
-    
-    def post(self, request):
-        serializer = PassVerificationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        email = serializer.validated_data['email']
-        verification_token = serializer.validated_data['verification_token']
-        
-
-        try:
-            user = User.objects.get(email=email)
-            #verify the token that was passed
-            token = Tokens.objects.filter(Q(email=email) & Q(action='resetpassword')).order_by('-created_at')[:1].first()
-            print(token)
-            result = check_password(verification_token, token.token)
-            if result == True and token.exp_date >= time.time():
-                token.date_used = datetime.now()
-                token.confirmed = True
-                user.save()
-                token.save()
-
-                base_response = BaseResponse(None, None, 'Token verified successfully.')
-                return Response(base_response.to_dict(), status=status.HTTP_200_OK)
-                return Response({'success': 'Password reset successful.'}, status=status.HTTP_200_OK)
-            elif result and token.exp_date < time.time():
-                return abort(401, 'Expired  token')
-
-            else:
-                raise User.DoesNotExist
-
-        except User.DoesNotExist:
-            return abort(401, 'Invalid  token')
-
-
-class PasswordResetView(APIView):
-    """
-    This view is used to reset a password
-    """
-    authentication_classes = ()
-    permission_classes = ()
-
-    def post(self, request):
-        serializer = PassResetSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        password = serializer.validated_data['password']
-
-        try:
-            user = User.objects.get(email=email)
-            #verify the token that was passed
-            token = Tokens.objects.filter(Q(email=email) & Q(action='resetpassword')).order_by('-created_at')[:1].first()
-            print(token)
-            
-            if token.confirmed:
-                user.set_password(password)
-                user.save()
-                base_response = BaseResponse(None, None, 'Password reset successful.')
-                return Response(base_response.to_dict(), status=status.HTTP_200_OK)
-                return Response({'success': 'Password reset successful.'}, status=status.HTTP_200_OK)
-            else:
-                raise User.DoesNotExist
-
-        except User.DoesNotExist:
-            return abort(401, 'Invalid  token')
-
-
-
 class VerifyEmailView(APIView):
     """
-    This view verifies cteating account with otp
+    This view verifies creating account with otp
 
     POST - takes the otp and the email to verify
     """
+    
     permission_classes = ()
 
+    @swagger_auto_schema(
+        request_body=VerificationSerializer,
+        responses={200: 'Success', 400: 'Bad Request'},
+        operation_description="Verify user email by taking in otp"
+    )
+    @action(detail=False, methods=['post'])
     def post(self, request):
         serializer = VerificationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -274,3 +169,139 @@ class VerifyEmailView(APIView):
 
         except User.DoesNotExist:
             return abort(401, 'Invalid verification token')
+
+
+class ResendOTPView(APIView):
+    """Send a new otp to an unverify user upon request for another OTP 
+        if the previous token has expired or not valid 
+    """
+    permission_classes = []
+    
+
+    @swagger_auto_schema(
+        request_body=ResendOTPSerializer,
+        responses={200: 'Success', 400: 'Bad Request'},
+        operation_description="Verify user email by taking in otp"
+    )
+    @action(detail=False, methods=['post'])
+    def post(self, request):
+        """
+        Update the token table upon a new request for another otp
+            get user email to verify if the email exist 
+            
+        """
+        serializer = ResendOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+        try:
+            user = User.objects.get(email=email)
+
+        except User.DoesNotExist as error:
+            return abort(404, 'User with this email does not exist.')
+            
+        '''
+        If email exist check if the email has been verified or not before proceeding to
+        send a new otp to the user and update the token table
+        '''
+        token = generate_token()
+        if not user.email_verified:
+            existing_token = Tokens.objects.filter(email=email).first()
+            if existing_token:
+                    existing_token.token = token
+                    existing_token.exp_date = time.time() + 300
+                    existing_token.save()
+            else:
+                new_token_entry = Tokens(email=email, action='request', token=token, exp_date=time.time() + 300)
+                new_token_entry.save()
+
+
+            try:
+                """Send otp to sign up user"""
+                EmailManager.send_mail(
+                    subject=f"MentorMe",
+                    recipients=[email],
+                    template_name="user_invite.html",
+                    context={"user": user.id, "token":token}
+                )
+
+            except Exception as error:
+                print(error)
+
+        else:
+            base_response = BaseResponse(data=email, exception=None, message='Email has been verified and can proceed to perform operation')
+            return Response(base_response.to_dict(), status=status.HTTP_200_OK)
+        
+        return Response(BaseResponse(data=email, exception=None, message='OTP successfully sent').to_dict(), status=status.HTTP_200_OK)
+
+
+class SendResetPasswordEmail(APIView):
+    permission_classes = []
+
+    def post(self, request, email):
+        try:
+            user = CustomUser.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"message": "User with this email does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user.is_active:
+            current_site = get_current_site(request)
+
+            try:
+                """Send otp to sign up user"""
+
+                context = {
+                    "user": user,
+                    "domain": current_site.domain,
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "token": account_activation_token.make_token(user),
+                }
+                EmailManager.send_mail(
+                    subject=f"MentorMe - Reset password",
+                    recipients=[email],
+                    template_name="reset_password_email.html",
+                    context=context
+                )
+                print("hi")
+
+            except Exception as error:
+                print(error)
+
+            return Response(
+                {"message": "Reset Password Email Sent"},
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            return Response(
+                {"message": "User is not active"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class ResetPassword(GenericAPIView):
+    permission_classes = []
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                user.set_password(request.data.get("password"))
+                user.save()
+                return Response(
+                    {"message": "Password Reset Successfull"}, status=status.HTTP_200_OK
+                )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {"message": "Password Reset Failed"}, status=status.HTTP_400_BAD_REQUEST
+            )

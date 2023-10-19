@@ -1,36 +1,64 @@
 from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import generics
+from rest_framework import status
 from rest_framework.response import Response
-from .models import Mentee
-from users.models import CustomUser
-from .serializers import MenteeSerializer, UserSerializer
+
+from .models import Session, Category, Mentor
+from .serializers import SessionSerializer, CategorySerializer
+
 
 # Create your views here.
-class MenteeCreateView(generics.CreateAPIView):
-    """view for creating a mentee profile"""
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
+class SessionCreateAPIView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
 
-    def create(self, request, *args, **kwargs):
-        user_serializer = UserSerializer(data=request.data)
-        user_serializer.is_valid(raise_exception=True)
-        user = user_serializer.save()
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        try:
+            mentor = Mentor.objects.get(user=request.user)
+        except Mentor.DoesNotExist:
+            return Response({"detail": "Not a mentor"},
+                            status=403)
+        serializer["mentor"] = mentor
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
 
-        # Extract user data that wasn't used during user creation
-        remaining_data = {
-            key: value for key, value in request.data.items()
-            if key not in user_serializer.Meta.fields
-        }
 
-        mentee_data = request.data.get('mentee_data', {})  # Extract mentee-specific data
-        mentee_data.update(remaining_data)  # Add remaining data to the mentee data
-        mentee_data['user'] = user.id  # Associate the user with the mentee
+class CategoryListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
-        mentee_serializer = MenteeSerializer(data=mentee_data)
-        mentee_serializer.is_valid(raise_exception=True)
-        mentee = mentee_serializer.save()
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
 
-        return Response({
-            'user': user_serializer.data,
-            'mentee': mentee_serializer.data
-        }, status=status.HTTP_201_CREATED)
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+
+
+class MentorSessionList(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        mentor_id = self.kwargs.get('mentor_id')
+        try:
+            sessions = Session.objects.filter(mentor__user__id=mentor_id)
+            return sessions
+        except Session.DoesNotExist:
+            return Response(
+                {"error": "No sessions found for the specified mentor."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

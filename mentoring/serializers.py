@@ -1,21 +1,19 @@
 from rest_framework import serializers
-from .models import Mentee
-from users.models import CustomUser
+
+from .models import Session, Category
 
 
-class MenteeSerializer(serializers.ModelSerializer):
-    """Serializer for the mentee model"""
+class SessionSerializer(serializers.ModelSerializer):
+    mentor = serializers.UUIDField(read_only=True)
+    mentee = serializers.UUIDField(read_only=True)
+
     class Meta:
-        model = Mentee
-        fields = "__all__" #('expertise', 'company', 'title', 'goals')
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for the user model"""
-    class Meta:
-        model = CustomUser
+        model = Session
         fields = "__all__"
 
 
+class CategorySerializer(serializers.ModelSerializer):
 
-
+    class Meta:
+        model = Category
+        fields = "__all__"
