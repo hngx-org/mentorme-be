@@ -1,6 +1,10 @@
 from django.urls import path
-from .views import MentorSessionList
+from . import views
+
 
 urlpatterns = [
-    path('sessions/mentor/<str:mentor_id>/', MentorSessionList.as_view(), name='mentor-session-list'),
+    path("session/create/", views.SessionCreateAPIView.as_view()),
+    path("category/", views.CategoryListCreateAPIView.as_view()),
+    path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
+
 ]
