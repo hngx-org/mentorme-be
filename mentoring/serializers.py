@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import re
 from .models import *
+from .models import Session
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -69,9 +70,7 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             return mentor
         else:
             raise serializers.ValidationError("Only authenticated CustomUser can create a Mentor.")
-        return mentor
 
-from .models import Session
 
 class SessionSerializer(serializers.ModelSerializer):
     class Meta:
