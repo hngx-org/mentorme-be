@@ -79,16 +79,19 @@ class ResourceSerializer(serializers.ModelSerializer):
 
 class MentorProfileSerializer(serializers.Serializer):
     custom_user = CustomUserSerializer()
-    education = EducationSerializer()
-    mentor = MentorSerializer()
-    company = CompanySerializer()
-    industry = IndustrySerializer()
-    skill = SkillSerializer()
-    session = SessionSerializer()
-    identity = IdentitySerializer()
-    certification = CertificationSerializer()
-    resource = ResourceSerializer()
+    education = serializers.PrimaryKeyRelatedField(queryset=Education.objects.all())
+    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
+    industry = serializers.PrimaryKeyRelatedField(queryset=Industry.objects.all())
+    skill = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all())
+    session = serializers.PrimaryKeyRelatedField(queryset=Session.objects.all())
+    identity = serializers.PrimaryKeyRelatedField(queryset=Identity.objects.all())
+    certification = serializers.PrimaryKeyRelatedField(queryset=Certification.objects.all())
+    resource = serializers.PrimaryKeyRelatedField(queryset=Resource.objects.all())
+    mentor = serializers.PrimaryKeyRelatedField(queryset=Mentor.objects.all())
 
+    class Meta:
+        models = Mentor
+        fields = "__all__"
 
 from rest_framework import serializers
 from .models import Mentor
