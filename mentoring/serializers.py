@@ -20,11 +20,40 @@ class MenteeProfileAllSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentee
         fields='__all__'  
+class MentorUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Mentor
+        fields=['job_title' , 'company' ,'industry', 
+    'experience' ,
+    'skills' ,
+    'linkedin' ,
+    'twitter' ,
+    'other_links' ,
+    'mentoring_exp',
+    'mentoring_type',
+    'availability',
+    'prefered_starttime',
+    'prefered_endtime',
+    'prefered_days' ,
+    'education' ,
+    'certification' ,
+    'identity' ,
+    'status' ,
+    'resources' 
+]
+class MenteeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Mentee
+        fields=[ 'expertise',
+    'company' ,
+    'title' ,
+    'goals' 
+] 
 
 class UserlogSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['first_name','last_name','image','expertise']
+        fields=['first_name','last_name','image']
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:

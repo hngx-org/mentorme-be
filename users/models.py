@@ -15,11 +15,11 @@ class CustomUser(AbstractUser):
     image = models.URLField(max_length=1000)
     gender = models.CharField(max_length=225)
     country = models.CharField(max_length=225)
-    expertise=models.CharField(max_length=255,default='None')
     bio = models.TextField()
     password = models.CharField(max_length=255, blank=False)
     email_verified = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
+    role=models.CharField(max_length=225,default='null')
 
 
     objects = CustomUserManager()
