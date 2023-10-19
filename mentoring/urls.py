@@ -14,4 +14,5 @@ urlpatterns=[
     path("session/create/", views.SessionCreateAPIView.as_view()),
     path("category/", views.CategoryListCreateAPIView.as_view()),
     path('create_mentor_data/', MentorCreationView.as_view(), name='create-user-data'),
+    path('mentor/<int:pk>/',views.GetMentorApiView.as_view(),name='Get_all_mentor_by_id')
 ]

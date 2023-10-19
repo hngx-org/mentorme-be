@@ -88,6 +88,7 @@ class GetMentorApiView(generics.RetrieveAPIView):
     queryset= Mentor.objects.all()
     serializer_class= MentorProfileAllSerializer
     lookup_field = "pk"
+    
 class AllMentorsView(generics.ListAPIView):
     queryset=Mentor.objects.all()
     serializer_class=MentorProfileAllSerializer
