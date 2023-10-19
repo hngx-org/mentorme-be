@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import *
-
+from mentoring import views
 
 urlpatterns = [
     path('register', RegisterUser.as_view(), name="register"),
