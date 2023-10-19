@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.decorators import action
 from drf_yasg.utils import swagger_auto_schema
 
@@ -11,12 +12,15 @@ from drf_yasg.utils import swagger_auto_schema
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.db.models import Q
-
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.sites.shortcuts import get_current_site
 
 #local imports
-from .serializers import RegisterSerializer, LoginSerializer, PassVerificationSerializer, PassResetSerializer, VerificationSerializer, ResendOTPSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ResetPasswordSerializer, VerificationSerializer, ResendOTPSerializer
 from .utils import EmailManager, generate_token, BaseResponse, abort
-from .models import Tokens
+from .models import Tokens, CustomUser
+from .token import account_activation_token
 
 import time
 import random
@@ -347,3 +351,75 @@ class ResendOTPView(APIView):
             return Response(base_response.to_dict(), status=status.HTTP_200_OK)
         
         return Response(BaseResponse(data=email, exception=None, message='OTP successfully sent').to_dict(), status=status.HTTP_200_OK)
+
+
+class SendResetPasswordEmail(APIView):
+    permission_classes = []
+
+    def post(self, request, email):
+        try:
+            user = CustomUser.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"message": "User with this email does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user.is_active:
+            current_site = get_current_site(request)
+
+            try:
+                """Send otp to sign up user"""
+
+                context = {
+                    "user": user,
+                    "domain": current_site.domain,
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "token": account_activation_token.make_token(user),
+                }
+                EmailManager.send_mail(
+                    subject=f"MentorMe - Reset password",
+                    recipients=[email],
+                    template_name="reset_password_email.html",
+                    context=context
+                )
+                print("hi")
+
+            except Exception as error:
+                print(error)
+
+            return Response(
+                {"message": "Reset Password Email Sent"},
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            return Response(
+                {"message": "User is not active"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class ResetPassword(GenericAPIView):
+    permission_classes = []
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                user.set_password(request.data.get("password"))
+                user.save()
+                return Response(
+                    {"message": "Password Reset Successfull"}, status=status.HTTP_200_OK
+                )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {"message": "Password Reset Failed"}, status=status.HTTP_400_BAD_REQUEST
+            )

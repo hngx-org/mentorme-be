@@ -7,7 +7,7 @@ from users.models import CustomUser
 class Category(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
     name = models.CharField(max_length=100)
-    
+
     def __str__(self):
         return self.name
 
@@ -16,9 +16,9 @@ class Resource(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    link = models.CharField(max_length=255)
+    link = models.URLField(null=True, blank=True)
     price = models.FloatField()
-    
+
     def __str__(self):
         return self.title
 
@@ -30,10 +30,10 @@ class Session(models.Model):
     start_date = models.DateField()
     start_time = models.TimeField()
     duration = models.IntegerField()
-    no_of_sessions = models.IntegerField()
+    no_of_sessions = models.IntegerField(null=True)
     relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
-    occurence = models.IntegerField()
-    
+    occurence = models.IntegerField(null=True)
+
     def __str__(self):
         return self.name
 
@@ -42,8 +42,8 @@ class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     degree = models.CharField(max_length=255)
     institution = models.CharField(max_length=255)
-    graduation_year = models.CharField(max_length=255)
-    link = models.CharField(max_length=255, blank=True, null=True)
+    graduation_year = models.IntegerField(null=True)
+    link = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.degree
@@ -51,7 +51,7 @@ class Education(models.Model):
 
 class Industry(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    name = models.BigIntegerField()
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
@@ -76,9 +76,9 @@ class Skill(models.Model):
 class Certification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=255)
-    link = models.CharField(max_length=255)
+    link = models.URLField(blank=True, null=True)
     issuer = models.CharField(max_length=255)
-    description = models.BigIntegerField()
+    description = models.CharField(max_length=255)
     year = models.IntegerField()
 
     def __str__(self):
@@ -91,7 +91,7 @@ class Identity(models.Model):
     birth_date = models.DateField()
     gov_id_type = models.CharField(max_length=255)
     id_number = models.CharField(max_length=255)
-    id_link = models.CharField(max_length=255)
+    id_link = models.URLField()  # Compulsory
 
     def __str__(self):
         return self.name
