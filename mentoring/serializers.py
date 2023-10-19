@@ -165,11 +165,6 @@ class UserlogSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
         fields=['first_name','last_name','image']
-class CategorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Category
-        fields = "__all__"
 
 class MenteeSerializer(serializers.ModelSerializer):
 

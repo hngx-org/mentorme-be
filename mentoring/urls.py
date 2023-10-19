@@ -17,5 +17,6 @@ urlpatterns=[
     path("create-mentee-profile/", views.MenteeCreateAPIView.as_view()),
     path("create-company/", views.CompanyListCreateAPIView.as_view()),
     path('create_mentor_data/', MentorCreationView.as_view(), name='create-user-data'),
-    path('mentor/<int:pk>/',views.GetMentorApiView.as_view(),name='Get_all_mentor_by_id')
+    path('mentor/<int:pk>/',views.GetMentorApiView.as_view(),name='Get_all_mentor_by_id'),
+    path('v1/searching/<str:search_term>', views.SearchResourcesApiView.as_view(), name='resouce-search'),
 ]

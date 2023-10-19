@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
 from users.serializers import UserSerializer
+from django.db.models import Q
+
 class MentorCreationView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Mentor.objects.all()
@@ -214,3 +216,18 @@ class GetloggedUserView(generics.RetrieveAPIView):
         mentee=get_object_or_404(Mentee,user=user)
         response['expertise']=mentee.expertise
         return Response(response,status=status.HTTP_200_OK)    
+    
+class SearchResourcesApiView(generics.ListAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+    def get(self, request, search_term):
+         
+        if search_term:
+            # Use Q objects to search multiple fields with an OR condition
+            querysets = Resource.objects.filter(
+                Q(title__icontains=search_term) |
+                Q(description__icontains=search_term)
+            )
+
+        serializer = self.serializer_class(querysets, many=True)
+        return Response(serializer.data)
