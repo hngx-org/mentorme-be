@@ -116,10 +116,10 @@ class Mentor(models.Model):
     prefered_days = models.CharField(max_length=255, blank=True, null=True)
     education = models.ForeignKey(Education, on_delete=models.PROTECT)
     certification = models.ForeignKey(Certification, on_delete=models.PROTECT)
-    identity = models.ForeignKey(Identity, on_delete=models.PROTECT)
+    identity = models.ForeignKey(Identity, on_delete=models.PROTECT, null=True)
     status = models.CharField(max_length=255, blank=True, null=True)
-    resources = models.ForeignKey(Resource, on_delete=models.PROTECT)
-    sessions = models.ForeignKey(Session, on_delete=models.PROTECT)
+    resources = models.ForeignKey(Resource, on_delete=models.PROTECT, null=True)
+    sessions = models.ForeignKey(Session, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return self.user

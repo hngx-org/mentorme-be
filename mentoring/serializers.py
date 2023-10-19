@@ -81,10 +81,7 @@ class MentorSerializer(serializers.ModelSerializer):
     skills = SkillSerializer()  
     education = EducationSerializer()
     certification = CertificationSerializer()
-    identity = IdentitySerializer() 
-    resources = ResourceSerializer()
-    sessions = SessionSerializer()
-    
+
     class Meta:
         model = Mentor 
         fields = '__all__'
@@ -101,9 +98,9 @@ class MentorSerializer(serializers.ModelSerializer):
         skills_id = validated_data.pop('skills')
         education_id = validated_data.pop('education')
         certification_id = validated_data.pop('certification')
-        identity_id = validated_data.pop('identity')
-        resources_id = validated_data.pop('resources')
-        sessions_id = validated_data.pop('sessions')
+        # identity_id = validated_data.pop('identity')
+        # resources_id = validated_data.pop('resources')
+        # sessions_id = validated_data.pop('sessions')
 
         mentor = Mentor.objects.create(**validated_data)
 
@@ -113,8 +110,8 @@ class MentorSerializer(serializers.ModelSerializer):
         mentor.skills_id = skills_id
         mentor.education_id = education_id
         mentor.certification_id = certification_id
-        mentor.identity_id = identity_id
-        mentor.resources_id = resources_id
-        mentor.sessions_id = sessions_id
+        # mentor.identity_id = identity_id
+        # mentor.resources_id = resources_id
+        # mentor.sessions_id = sessions_id
 
         return mentor
