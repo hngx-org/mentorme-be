@@ -47,3 +47,11 @@ class VerificationSerializer(serializers.Serializer):
 
 class ResetPasswordSerializer(serializers.Serializer):
     password = serializers.CharField()
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'gender', 'bio', 'country', 'image']

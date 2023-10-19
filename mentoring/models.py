@@ -105,7 +105,7 @@ class Mentor(models.Model):
     resources = models.ForeignKey(Resource, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
-        return self.user
+        return str(self.id)
 
 
 class Mentee(models.Model):
