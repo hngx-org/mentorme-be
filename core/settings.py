@@ -95,12 +95,21 @@ DATABASES = {
     # }
 
 
+#     'default': {
+#     'ENGINE': 'django.db.backends.postgresql',
+#     'NAME': 'neondb',
+#     'USER': 'oluwatimileyin0518',
+#     'PASSWORD': 'SJMZO3hAj2id',
+#     'HOST': 'ep-delicate-pine-98196338.us-east-2.aws.neon.tech',
+#     'PORT': '5432',
+#     'OPTIONS': {'sslmode': 'require'},
+#   }
     'default': {
     'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'neondb',
-    'USER': 'oluwatimileyin0518',
-    'PASSWORD': 'SJMZO3hAj2id',
-    'HOST': 'ep-delicate-pine-98196338.us-east-2.aws.neon.tech',
+    'NAME': "verceldb",
+    'USER': "default",
+    'PASSWORD': "tBrSoPb75pgn",
+    'HOST': "ep-proud-hill-16412189-pooler.us-east-1.postgres.vercel-storage.com",
     'PORT': '5432',
     'OPTIONS': {'sslmode': 'require'},
   }
