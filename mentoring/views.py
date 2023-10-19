@@ -1,17 +1,30 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .serializers import MentorProfileAllSerializer,MenteeProfileAllSerializer,UserlogSerializer
-# Create your views here.
-from .models import Mentor,Mentee,CustomUser
 from rest_framework.response import Response
+from .models import *
+from .serializers import *
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-
-from .models import Session, Category, Mentor, Company, Industry, Mentee
 from users.models import CustomUser
-from .serializers import SessionSerializer, CategorySerializer, CompanySerializer, IndustrySerializer, MenteeSerializer
 from users.serializers import UserSerializer
+class MentorCreationView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Mentor.objects.all()
+    serializer_class = MentorSerializer
+
+    def perform_create(self, serializer):
+        user = self.request.user  
+        serializer.save(user=user)
+
+    def create(self, request, *args, **kwargs):
+        if isinstance(request.user, CustomUser):
+            return super().create(request, *args, **kwargs)
+        else:
+            return Response(
+                {"detail": "Only authenticated CustomUser can create a Mentor."},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
 
 # Create your views here.
