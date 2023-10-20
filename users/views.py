@@ -94,6 +94,7 @@ class LoginView(TokenObtainPairView):
             try:
                 email = serializer.initial_data['email']
                 password = serializer.initial_data['password']
+                role=serializer.initial_data['role']
             except:
                 raise AuthenticationFailed('Email and password required')
 
@@ -103,7 +104,13 @@ class LoginView(TokenObtainPairView):
                     raise AuthenticationFailed('Invalid email or password.')
 
                 if not user.is_active:
-                    raise AuthenticationFailed(f'Your account is not active.')
+                    # raise AuthenticationFailed('Your account is not active.')
+                    response = {
+                    "success": False,
+                    "message": "Your account is not active",
+                    "data": user.email
+                    }
+                    return Response(response,status=status.HTTP_401_UNAUTHORIZED)
             except User.DoesNotExist:
                 raise AuthenticationFailed('Invalid email or password.')
 
@@ -123,7 +130,8 @@ class LoginView(TokenObtainPairView):
                 "Authorization": response.data,
                 "user_data": user_data
             }
-
+            if user.role != role.lower():
+                return Response({"message": "You can't access this page"},status=status.HTTP_401_UNAUTHORIZED)
             response.data = BaseResponse(responseData, None, 'Login successful').to_dict()
             return Response(response.data, status=status.HTTP_200_OK)
         except AuthenticationFailed as e:
