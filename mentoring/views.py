@@ -97,7 +97,7 @@ class MentorSessionList(generics.ListAPIView):
 class GetMentorApiView(generics.RetrieveAPIView):
     queryset= Mentor.objects.all()
     serializer_class= MentorProfileAllSerializer
-    lookup_field = "pk"
+    lookup_field = "id"
     
 
 class CompanyListCreateAPIView(generics.ListCreateAPIView):
