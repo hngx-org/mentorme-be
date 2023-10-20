@@ -11,6 +11,8 @@ from users.models import CustomUser
 from users.serializers import UserSerializer
 from users.utils import abort
 from django.db.models import Q
+from datetime import datetime
+from django.core    .exceptions import ValidationError
 
 
 class MentorCreationView(generics.CreateAPIView):
@@ -18,7 +20,7 @@ class MentorCreationView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = MentorSerializer
 
-    
+
 
     def create(self, request, *args, **kwargs):
 
@@ -53,6 +55,124 @@ class SessionCreateAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
+
+
+class SessionMentorRetrieveAPIView(generics.RetrieveAPIView):
+    """Retrieves all upcoming sessions of a mentor (POV: Mentor)"""
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            mentor = Mentor.objects.get(user=request.user)
+        except (Mentor.DoesNotExist, ValidationError):
+            return Response({"detail": "Not a mentor"},
+                            status=status.HTTP_403_FORBIDDEN)
+        qs = self.get_queryset()
+        today = datetime.now().date
+        sessions = self.serializer_class(qs.filter(mentor=mentor,
+                                                   start_date_gte=today),
+                                         many=True)
+        return Response(sessions.data)
+
+
+class SessMentorBookedRetrieveAPIView(generics.RetrieveAPIView):
+    """Retrieves all upcoming booked sessions of a mentor (POV: Mentor)"""
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            mentor = Mentor.objects.get(user=request.user)
+        except (Mentor.DoesNotExist, ValidationError):
+            return Response({"detail": "Not a mentor"},
+                            status=status.HTTP_403_FORBIDDEN)
+        qs = self.get_queryset()
+        today = datetime.now().date
+        query = qs.filter(mentor=mentor,
+                          start_date_gte=today).exclude(mentee=None)
+        sessions = self.serializer_class(query, many=True)
+        return Response(sessions.data)
+
+
+class SessionRetrieveAPIView(generics.RetrieveAPIView):
+    """Retrieves all free upcoming sessions of a mentor (POV: Mentee)"""
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+    def get(self, request, mentor_id, *args, **kwargs):
+        try:
+            mentor = Mentor.objects.get(id=mentor_id)
+        except (Mentor.DoesNotExist, ValidationError):
+            return Response({"detail": "Mentor Does Exist"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        qs = self.get_queryset()
+        today = datetime.now().date
+        query = qs.filter(mentor=mentor,
+                          mentee=None,
+                          start_date_gte=today)
+        sessions = self.serializer_class(query, many=True)
+        return Response(sessions.data)
+
+
+class SessionBookUpdateAPIView(generics.GenericAPIView):
+    """Books a session of a mentor (POV: Mentee)"""
+    queryset = Session.objects.all()
+
+    def get_serializer(self):
+        return None
+
+    def get_serializer_class(self):
+        return None
+
+    def put(self, request, session_id, *args, **kwargs):
+        try:
+            session = Session.objects.get(id=session_id)
+        except (Session.DoesNotExist, ValidationError):
+            return Response({"detail": "Session ID is incorrect"},
+                            status=status.HTTP_404_NOT_FOUND)
+        if session.mentee:
+            return Response({"detail": "Session was booked by another user"},
+                            status=status.HTTP_409_CONFLICT)
+        try:
+            mentee = Mentee.objects.get(user=request.user)
+        except (Mentee.DoesNotExist, ValidationError):
+            return Response({"detail": "Not a mentee"},
+                            status=status.HTTP_403_FORBIDDEN)
+        session.mentee = mentee
+        session.save()
+        return Response(SessionSerializer(session).data)
+
+
+class SessMenteeBookedRetrieveAPIView(generics.RetrieveAPIView):
+    """Retrieves all upcoming booked sessions of a mentee (POV: Mentee)"""
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            mentee = Mentee.objects.get(user=request.user)
+        except (Mentee.DoesNotExist, ValidationError):
+            return Response({"detail": "Not a mentee"},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        qs = self.get_queryset()
+        today = datetime.now().date
+        query = qs.filter(mentee=mentee,
+                          start_date_gte=today)
+        sessions = self.serializer_class(query, many=True)
+        return Response(sessions.data)
+
+
+class SessMenteeCanceledRetrieveAPIView(generics.GenericAPIView):
+    """Retrieves all canceled booked sessions of a mentee (POV: Mentee)"""
+
+    def get_serializer_class(self):
+        return None
+
+    def get_serializer(self):
+        return None
 
 
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
@@ -98,7 +218,7 @@ class GetMentorApiView(generics.RetrieveAPIView):
     queryset= Mentor.objects.all()
     serializer_class= MentorProfileAllSerializer
     lookup_field = "id"
-    
+
 
 class CompanyListCreateAPIView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
@@ -109,7 +229,7 @@ class CompanyListCreateAPIView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
-    
+
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data, status=201)
@@ -125,7 +245,7 @@ class IndustryListCreateAPIView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
-    
+
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data, status=201)
@@ -140,7 +260,7 @@ class SkillListCreateAPIView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
-    
+
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data, status=201)
@@ -169,8 +289,8 @@ class MenteeCreateAPIView(generics.CreateAPIView):
             'mentee': mentee_serializer.data
         }, status=status.HTTP_201_CREATED)
 
-      
-        
+
+
 
 class AllMentorsView(generics.ListAPIView):
     queryset=Mentor.objects.all()
@@ -207,8 +327,8 @@ class UpdateMenteeView(generics.UpdateAPIView):
                 serializer.save()
                 return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
         return Response({'You\'re not allowed to update another persons profile'}, status=status.HTTP_403_FORBIDDEN)
-    
-    
+
+
 class GetloggedUserView(generics.RetrieveAPIView):
     queryset=CustomUser.objects.all()
     serializer_class=MenteeDetailsSerializer
@@ -226,13 +346,13 @@ class GetloggedUserView(generics.RetrieveAPIView):
         response= serializer.data
         mentee=get_object_or_404(Mentee,user=user)
         response['expertise']=mentee.expertise
-        return Response(response,status=status.HTTP_200_OK)    
-    
+        return Response(response,status=status.HTTP_200_OK)
+
 class SearchResourcesApiView(generics.ListAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     def get(self, request, search_term):
-         
+
         try:
             # Use Q objects to search multiple fields with an OR condition
             querysets = Resource.objects.filter(
@@ -241,7 +361,7 @@ class SearchResourcesApiView(generics.ListAPIView):
             )
             if not querysets.exists():
                 return Response({"Message":"No resource containing '{}' found!".format(search_term)}, status=status.HTTP_404_NOT_FOUND)
-        except:    
+        except:
              return Response({"error": "no result"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(querysets, many=True)
         return Response(serializer.data)
