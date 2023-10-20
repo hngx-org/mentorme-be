@@ -158,6 +158,7 @@ class MentorSerializer(serializers.ModelSerializer):
 
         return mentor
 class MentorProfileAllSerializer(serializers.ModelSerializer):
+    user=UserSerializer()
     class Meta:
         model=Mentor
         fields='__all__'
