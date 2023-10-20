@@ -112,7 +112,7 @@ class LoginView(TokenObtainPairView):
                         "message": "Invalid email or password.",
                         "data": email
                         },
-                    return Response(response,status=status.HTTP_400_BAD_REQUEST)
+                    return Response(response,status=status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED)
                     # raise AuthenticationFailed('Invalid email or password.')
 
                 if not user.is_active:
