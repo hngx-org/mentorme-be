@@ -222,12 +222,15 @@ class SearchResourcesApiView(generics.ListAPIView):
     serializer_class = ResourceSerializer
     def get(self, request, search_term):
          
-        if search_term:
+        try:
             # Use Q objects to search multiple fields with an OR condition
             querysets = Resource.objects.filter(
                 Q(title__icontains=search_term) |
                 Q(description__icontains=search_term)
             )
-
+            if not querysets.exists():
+                return Response({"Message":"No event containing '{}' found!".format(search_term)}, status=status.HTTP_404_NOT_FOUND)
+        except:    
+             return Response({"error": "no result"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(querysets, many=True)
         return Response(serializer.data)
