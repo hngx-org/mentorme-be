@@ -18,6 +18,7 @@ class MentorCreationView(generics.CreateAPIView):
     
 
     def create(self, request, *args, **kwargs):
+
         # Create a mentor object
         mentor_serializer = self.get_serializer(data=request.data)
         mentor_serializer.is_valid(raise_exception=True)
