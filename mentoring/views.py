@@ -180,33 +180,24 @@ class AllMenteeView(generics.ListAPIView):
     queryset=Mentee.objects.all()
     serializer_class=MenteeProfileAllSerializer
 
-class UpdateMentorView(generics.UpdateAPIView):
-    queryset=Mentor.objects.all()
-    serializer_class=MentorUpdateSerializer
-    lookup_field='id'
-
-    def put(self, request, *args, **kwargs):
-        instance=self.get_object()
-        if request.user.email == instance.user.email:
-            serializer=self.serializer_class(instance,data=request.data)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
-        return Response({'You\'re not allowed to update another persons profile'}, status=status.HTTP_403_FORBIDDEN)
-
-class UpdateMenteeView(generics.UpdateAPIView):
+class UpdateUserView(generics.UpdateAPIView):
     queryset=Mentee.objects.all()
-    serializer_class=MenteeUpdateSerializer
-    lookup_field='id'
+    serializer_class=MenteeDetailsSerializer
 
     def put(self, request, *args, **kwargs):
-        instance=self.get_object()
-        if request.user.email == instance.user.email:
+        user=request.user
+        if user.role == "mentee":
+            instance= get_object_or_404(Mentee,user=user)
             serializer=self.serializer_class(instance,data=request.data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
-        return Response({'You\'re not allowed to update another persons profile'}, status=status.HTTP_403_FORBIDDEN)
+        instance=get_object_or_404(Mentor,user=user)
+        serializer=MentorDetailsSerializer(instance,data=request.data)
+        if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+
     
     
 class GetloggedUserView(generics.RetrieveAPIView):
