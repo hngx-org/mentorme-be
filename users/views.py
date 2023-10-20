@@ -133,7 +133,11 @@ class LoginView(TokenObtainPairView):
             response.data = BaseResponse(responseData, None, 'Login successful').to_dict()
             return Response(response.data, status=status.HTTP_200_OK)
         except AuthenticationFailed as e:
-            return abort(401, (e.detail))
+            data = {
+                "details": e.detail,
+                "email": email
+            }
+            return abort(401, data)
 
 class VerifyEmailView(APIView):
     """
