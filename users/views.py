@@ -103,7 +103,13 @@ class LoginView(TokenObtainPairView):
                     raise AuthenticationFailed('Invalid email or password.')
 
                 if not user.is_active:
-                    raise AuthenticationFailed('Your account is not active.')
+                    # raise AuthenticationFailed('Your account is not active.')
+                    response = {
+                    "success": False,
+                    "message": "Your account is not active",
+                    "data": user.email
+                    }
+                    return Response(response,status=status.HTTP_401_UNAUTHORIZED)
             except User.DoesNotExist:
                 raise AuthenticationFailed('Invalid email or password.')
 
