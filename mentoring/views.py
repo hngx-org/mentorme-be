@@ -217,16 +217,12 @@ class GetloggedUserView(generics.RetrieveAPIView):
         mail=request.user.email
         user=get_object_or_404(CustomUser,email=mail)
         if user.role.lower() == 'mentor':
-            serializer=MentorDetailsSerializer(user)
-            response= serializer.data
             mentor=get_object_or_404(Mentor,user=user)
-            response['skills']=mentor.skills
-            return Response(response,status=status.HTTP_200_OK)
-        serializer=self.serializer_class(user)
-        response= serializer.data
+            serializer=MentorDetailsSerializer(mentor)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         mentee=get_object_or_404(Mentee,user=user)
-        response['expertise']=mentee.expertise
-        return Response(response,status=status.HTTP_200_OK)    
+        serializer=self.serializer_class(mentee)
+        return Response(serializer.data,status=status.HTTP_200_OK)    
     
 class SearchResourcesApiView(generics.ListAPIView):
     queryset = Resource.objects.all()
