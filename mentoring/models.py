@@ -95,7 +95,7 @@ class Mentor(models.Model):
     mentoring_exp = models.IntegerField(default=0)
     mentoring_type = models.CharField(max_length=255, blank=True, null=True)
     availability = models.CharField(max_length=255, blank=True, null=True)
-    prefered_starttime = models.TimeField(blank=True, null=True)
+    prefered_starttime = models.CharField(max_length=255,blank=True, null=True)
     prefered_endtime = models.TimeField(blank=True, null=True)
     prefered_days = models.CharField(max_length=255, blank=True, null=True)
     education = models.ForeignKey(Education, on_delete=models.PROTECT, null=True)
