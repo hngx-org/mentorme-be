@@ -3,33 +3,39 @@ from rest_framework import generics
 from rest_framework.response import Response
 from .models import *
 from .serializers import *
+from .permissions import IsAuthenticatedMentee, IsAuthenticatedMentor
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
 from users.serializers import UserSerializer
-
+from users.utils import abort
 
 class MentorCreationView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
-    queryset = Mentor.objects.all()
+    permission_classes = [IsAuthenticatedMentor]
+    queryset = CustomUser.objects.all()
     serializer_class = MentorSerializer
 
-    def perform_create(self, serializer):
-        user = self.request.user  
-        serializer.save(user=user)
+    
 
     def create(self, request, *args, **kwargs):
-        if isinstance(request.user, CustomUser):
-            return super().create(request, *args, **kwargs)
-        else:
-            return Response(
-                {"detail": "Only authenticated CustomUser can create a Mentor."},
-                status=status.HTTP_403_FORBIDDEN
-            )
 
+        # Create a mentor object
+        mentor_serializer = self.get_serializer(data=request.data)
+        mentor_serializer.is_valid(raise_exception=True)
+        mentor = mentor_serializer.save(user=request.user, status='Verified')
 
-# Create your views here.
+        # Update the user information
+        user = request.user
+        user_serializer = UserSerializer(data=request.data.get('user', {}), instance=user, partial=True)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save(is_complete=True)
+
+        return Response({
+            'user': UserSerializer(user).data,
+            'mentee': mentor_serializer.data
+        }, status=status.HTTP_201_CREATED)
+
 class SessionCreateAPIView(generics.CreateAPIView):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
@@ -99,6 +105,8 @@ class CompanyListCreateAPIView(generics.ListCreateAPIView):
     
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
+        return Response(serializer.data, status=201)
+
 
 
 class IndustryListCreateAPIView(generics.ListCreateAPIView):
@@ -113,49 +121,48 @@ class IndustryListCreateAPIView(generics.ListCreateAPIView):
     
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
+        return Response(serializer.data, status=201)
+
+
+class SkillListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Skill.objects.all()
+    serializer_class = SkillSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+    
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+        return Response(serializer.data, status=201)
+
 
 
 class MenteeCreateAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = MenteeSerializer
+    permission_classes = [IsAuthenticatedMentee]  # Add authentication to ensure the user is logged in.
 
     def create(self, request, *args, **kwargs):
-
-        user_serializer = UserSerializer(data=request.data)
-        user_serializer.is_valid(raise_exception=True)
-        user = CustomUser.objects.get(email=request.user.email)
-
-        user.first_name = user_serializer.data['first_name']
-        user.last_name = user_serializer.data['last_name']
-        user.image = user_serializer.data['image']
-        user.gender = user_serializer['gender']
-        user.country = user_serializer['country']
-        user.bio = user_serializer['bio']
-        user.is_complete = True
-        user.save()
-        
-
-
-        # Extract user data that wasn't used during user creation
-        remaining_data = {
-            key: value for key, value in request.data.items()
-            if key not in user_serializer.Meta.fields
-        }
-
-        mentee_data = request.data.get('mentee_data', {})  # Extract mentee-specific data
-        mentee_data.update(remaining_data)  # Add remaining data to the mentee data
-        company = Company.objects.get(id=mentee_data['company'])
-        mentee_data['company'] = company.id
-        mentee_data['user'] = user.id
-
-        mentee_serializer = MenteeSerializer(data=mentee_data)
+        # Create a Mentee object
+        mentee_serializer = self.get_serializer(data=request.data)
         mentee_serializer.is_valid(raise_exception=True)
-        mentee = mentee_serializer.save()
+        mentee = mentee_serializer.save(user=request.user)
+
+        # Update the user information
+        user = request.user
+        user_serializer = UserSerializer(data=request.data.get('user', {}), instance=user, partial=True)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save(is_complete=True)
 
         return Response({
-            'user': user_serializer.data,
+            'user': UserSerializer(user).data,
             'mentee': mentee_serializer.data
         }, status=status.HTTP_201_CREATED)
+
+      
         
 
 class AllMentorsView(generics.ListAPIView):

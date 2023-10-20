@@ -29,6 +29,25 @@ from .models import Session, Category, Company, Industry, Mentee, Mentor
 
 from users.models import CustomUser
 
+class UserSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'first_name', 'last_name','email', 'image', 'gender', 'bio', 'country')
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
+
+    def validate_bio(self, value):
+        sql_injection_pattern = r'[;\'"]'
+        if re.search(sql_injection_pattern, value):
+            raise serializers.ValidationError("Bio contains potentially malicious content.")
+
+        if len(value) > 250:
+            raise serializers.ValidationError("Bio cannot exceed 250 characters.")
+
+        return value
+
 class SessionSerializer(serializers.ModelSerializer):
     mentor = serializers.UUIDField(read_only=True)
     mentee = serializers.UUIDField(read_only=True)
@@ -91,7 +110,7 @@ class MentorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mentor 
-        fields = '__all__'
+        exclude = ['identity', 'resources', 'status']
         
     def create(self, validated_data):
         request = self.context.get('request')
@@ -128,6 +147,7 @@ class MentorProfileAllSerializer(serializers.ModelSerializer):
         fields='__all__'
 
 class MenteeProfileAllSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
     class Meta:
         model=Mentee
         fields='__all__'  
@@ -135,7 +155,7 @@ class MentorUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentor
         fields=['job_title' , 'company' ,'industry', 
-    'experience' ,
+    'yearsofExp' ,
     'skills' ,
     'linkedin' ,
     'twitter' ,
@@ -143,8 +163,7 @@ class MentorUpdateSerializer(serializers.ModelSerializer):
     'mentoring_exp',
     'mentoring_type',
     'availability',
-    'prefered_starttime',
-    'prefered_endtime',
+    'prefered_time',
     'prefered_days' ,
     'education' ,
     'certification' ,
@@ -171,9 +190,13 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = "__all__"
 
-class MenteeSerializer(serializers.ModelSerializer):
 
+
+
+
+class MenteeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     class Meta:
         model = Mentee
-        fields = "__all__"
+        exclude = ['experience', 'links']
 

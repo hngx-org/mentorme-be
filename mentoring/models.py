@@ -42,7 +42,7 @@ class Industry(models.Model):
 
 
 class Company(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -52,6 +52,14 @@ class Company(models.Model):
 class Skill(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+class Experience(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    workplace = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
@@ -87,7 +95,7 @@ class Mentor(models.Model):
     job_title = models.CharField(max_length=255)
     company = models.ForeignKey(Company, on_delete=models.PROTECT, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.PROTECT, null=True, blank=True)
-    experience = models.IntegerField(default=0)
+    yearsofExp = models.IntegerField(default=0)
     skills = models.ForeignKey(Skill, on_delete=models.PROTECT, null=True)
     linkedin = models.CharField(max_length=255, blank=True, null=True)
     twitter = models.CharField(max_length=255, blank=True, null=True)
@@ -95,8 +103,7 @@ class Mentor(models.Model):
     mentoring_exp = models.IntegerField(default=0)
     mentoring_type = models.CharField(max_length=255, blank=True, null=True)
     availability = models.CharField(max_length=255, blank=True, null=True)
-    prefered_starttime = models.TimeField(blank=True, null=True)
-    prefered_endtime = models.TimeField(blank=True, null=True)
+    prefered_time = models.CharField(max_length=225, blank=True, null=True)
     prefered_days = models.CharField(max_length=255, blank=True, null=True)
     education = models.ForeignKey(Education, on_delete=models.PROTECT, null=True)
     certification = models.ForeignKey(Certification, on_delete=models.PROTECT, null=True)
@@ -115,9 +122,15 @@ class Mentee(models.Model):
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
     title = models.CharField(max_length=255)
     goals = models.CharField(max_length=255)
+    skills = models.ForeignKey(Skill, on_delete=models.PROTECT, null=True)
+    experience = models.ForeignKey(Experience, on_delete=models.PROTECT, null=True)
+    links = models.CharField(max_length=255, blank=True, null=True)
+    preferred_mentor_country = models.CharField(max_length=255)
+    tools = models.CharField(max_length=255, blank=True, null=True)
+    discipline = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-         return self.title
+         return self.user.email
 
 
 class Session(models.Model):
