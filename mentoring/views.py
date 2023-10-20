@@ -211,13 +211,13 @@ class UpdateMenteeView(generics.UpdateAPIView):
     
 class GetloggedUserView(generics.RetrieveAPIView):
     queryset=CustomUser.objects.all()
-    serializer_class=UserlogSerializer
+    serializer_class=MenteeDetailsSerializer
+    permission_classes = [IsAuthenticated]
     def retrieve(self, request, *args, **kwargs):
-        # permission_classes=[IsAuthenticated]
         mail=request.user.email
         user=get_object_or_404(CustomUser,email=mail)
         if user.role.lower() == 'mentor':
-            serializer=UserlogSerializer(user)
+            serializer=MentorDetailsSerializer(user)
             response= serializer.data
             mentor=get_object_or_404(Mentor,user=user)
             response['skills']=mentor.skills
