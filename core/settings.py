@@ -68,6 +68,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -127,8 +128,8 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql',
     'NAME': "verceldb",
     'USER': "default",
-    'PASSWORD': "tBrSoPb75pgn",
-    'HOST': "ep-proud-hill-16412189-pooler.us-east-1.postgres.vercel-storage.com",
+    'PASSWORD': "GKmHkxT5fJ1F",
+    'HOST': "ep-quiet-truth-77993437-pooler.us-east-1.postgres.vercel-storage.com",
     'PORT': '5432',
     'OPTIONS': {'sslmode': 'require'},
   }
