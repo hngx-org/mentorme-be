@@ -30,6 +30,21 @@ ALLOWED_HOSTS = ['*']
 
 
 # Application definition
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "https://mentor-me-lake.vercel.app",
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "OPTIONS"
+]
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
 
     #Project Apps
     'users',
@@ -52,6 +68,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -110,8 +128,8 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql',
     'NAME': "verceldb",
     'USER': "default",
-    'PASSWORD': "tBrSoPb75pgn",
-    'HOST': "ep-proud-hill-16412189-pooler.us-east-1.postgres.vercel-storage.com",
+    'PASSWORD': "GKmHkxT5fJ1F",
+    'HOST': "ep-quiet-truth-77993437-pooler.us-east-1.postgres.vercel-storage.com",
     'PORT': '5432',
     'OPTIONS': {'sslmode': 'require'},
   }
@@ -150,8 +168,8 @@ REST_FRAMEWORK = {
 #settings for simple-jwt
 from datetime import timedelta
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=10),
 }
 
 

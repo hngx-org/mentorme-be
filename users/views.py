@@ -48,6 +48,7 @@ class RegisterUser(generics.CreateAPIView):
         
         # Get the serialized user data
         res_data = serializer.data
+        res_data["user_id"] = user_instance.id
         try:
             """Send otp to sign up user"""
             
@@ -63,7 +64,7 @@ class RegisterUser(generics.CreateAPIView):
             new_token.email = user_instance.email
             new_token.action = 'register'
             new_token.token = token
-            new_token.exp_date = time.time() + 300
+            new_token.exp_date = time.time() + 600
             new_token.save()
 
 
@@ -106,12 +107,23 @@ class LoginView(TokenObtainPairView):
             except User.DoesNotExist:
                 raise AuthenticationFailed('Invalid email or password.')
 
-            #TODO: add a user serializer to return the user data
+            #TODO: add a user serializer to return the user data also the profile status
             response =  super().post(request, *args, **kwargs)
+            user_data = {
+                "user_id": user.id,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "role": user.role,
+                "profile_complete": user.is_complete
+                
 
+            }
             responseData = {
                 "Authorization": response.data,
+                "user_data": user_data
             }
+
             response.data = BaseResponse(responseData, None, 'Login successful').to_dict()
             return Response(response.data, status=status.HTTP_200_OK)
         except AuthenticationFailed as e:
@@ -240,7 +252,7 @@ class ResendOTPView(APIView):
 class SendResetPasswordEmail(APIView):
     permission_classes = []
 
-    def post(self, request, email):
+    def get(self, request, email):
         try:
             user = CustomUser.objects.get(email=email)
         except User.DoesNotExist:

@@ -25,9 +25,28 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
     
 
-from .models import Session, Category, Company, Industry, Mentee, Mentor,Mentee,Session, Category
+from .models import Session, Category, Company, Industry, Mentee, Mentor
 
 from users.models import CustomUser
+
+class UserSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'first_name', 'last_name','email', 'image', 'gender', 'bio', 'country')
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
+
+    def validate_bio(self, value):
+        sql_injection_pattern = r'[;\'"]'
+        if re.search(sql_injection_pattern, value):
+            raise serializers.ValidationError("Bio contains potentially malicious content.")
+
+        if len(value) > 250:
+            raise serializers.ValidationError("Bio cannot exceed 250 characters.")
+
+        return value
 
 class SessionSerializer(serializers.ModelSerializer):
     mentor = serializers.UUIDField(read_only=True)
@@ -91,7 +110,7 @@ class MentorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mentor 
-        fields = '__all__'
+        exclude = ['identity', 'resources', 'status']
         
     def create(self, validated_data):
         request = self.context.get('request')
@@ -105,21 +124,21 @@ class MentorSerializer(serializers.ModelSerializer):
         skills_id = validated_data.pop('skills')
         education_id = validated_data.pop('education')
         certification_id = validated_data.pop('certification')
-        # identity_id = validated_data.pop('identity')
-        # resources_id = validated_data.pop('resources')
-        # sessions_id = validated_data.pop('sessions')
+        
+        certification, created = Certification.objects.get_or_create(**certification_id)
+        industry, created = Industry.objects.get_or_create(**industry_id)
+        skills, created = Skill.objects.get_or_create(**skills_id)
+        company, created = Company.objects.get_or_create(**company_id)
+        education, created = Education.objects.get_or_create(**education_id)
+        
+        validated_data['certification'] = certification
+        validated_data['industry'] = industry        
+        validated_data['skills'] = skills
+        validated_data['company'] = company        
+        validated_data['education'] = education
 
         mentor = Mentor.objects.create(**validated_data)
 
-        # mentor.user_id = user
-        # mentor.company_id = company_id
-        # mentor.industry_id = industry_id
-        # mentor.skills_id = skills_id
-        # mentor.education_id = education_id
-        # mentor.certification_id = certification_id
-        # # mentor.identity_id = identity_id
-        # # mentor.resources_id = resources_id
-        # # mentor.sessions_id = sessions_id
 
         return mentor
 class MentorProfileAllSerializer(serializers.ModelSerializer):
@@ -128,6 +147,7 @@ class MentorProfileAllSerializer(serializers.ModelSerializer):
         fields='__all__'
 
 class MenteeProfileAllSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
     class Meta:
         model=Mentee
         fields='__all__'  
@@ -135,7 +155,7 @@ class MentorUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentor
         fields=['job_title' , 'company' ,'industry', 
-    'experience' ,
+    'yearsofExp' ,
     'skills' ,
     'linkedin' ,
     'twitter' ,
@@ -143,8 +163,7 @@ class MentorUpdateSerializer(serializers.ModelSerializer):
     'mentoring_exp',
     'mentoring_type',
     'availability',
-    'prefered_starttime',
-    'prefered_endtime',
+    'prefered_time',
     'prefered_days' ,
     'education' ,
     'certification' ,
@@ -161,19 +180,34 @@ class MenteeUpdateSerializer(serializers.ModelSerializer):
     'goals' 
 ] 
 
+
+
+
+
+
+class MenteeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Mentee
+        exclude = ['experience', 'links']
+
+
+class MenteeDetailsSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Mentee
+        fields = '__all__'
+
+
+class MentorDetailsSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Mentor
+        fields = '__all__'
+
+
+
 class UserlogSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
         fields=['first_name','last_name','image']
-class CategorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Category
-        fields = "__all__"
-
-class MenteeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Mentee
-        fields = "__all__"
-
