@@ -103,7 +103,7 @@ class LoginView(TokenObtainPairView):
                     raise AuthenticationFailed('Invalid email or password.')
 
                 if not user.is_active:
-                    raise AuthenticationFailed('Your account is not active.')
+                    raise AuthenticationFailed(f'Your account is not active.')
             except User.DoesNotExist:
                 raise AuthenticationFailed('Invalid email or password.')
 
@@ -127,7 +127,11 @@ class LoginView(TokenObtainPairView):
             response.data = BaseResponse(responseData, None, 'Login successful').to_dict()
             return Response(response.data, status=status.HTTP_200_OK)
         except AuthenticationFailed as e:
-            return abort(401, (e.detail))
+            data = {
+                "details": e.detail,
+                "email": email
+            }
+            return abort(401, data)
 
 class VerifyEmailView(APIView):
     """
