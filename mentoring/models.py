@@ -146,7 +146,20 @@ class Session(models.Model):
     relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
     occurence = models.IntegerField(null=True)
     mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
-    mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
+    # mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
+    
+
+class SessionBooking(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    session = models.ForeignKey(Session, on_delete=models.PROTECT, null=True)
+    available_time_slot = models.TimeField()
+    time_zone = models.CharField(max_length=100)
+    subscription_plans = models.CharField(max_length=100)
+    pricing = models.FloatField()
+    notes = models.CharField(max_length=255)
+    mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
+    
+

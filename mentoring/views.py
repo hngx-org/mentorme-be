@@ -1,3 +1,4 @@
+from datetime import timezone
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
@@ -38,21 +39,21 @@ class MentorCreationView(generics.CreateAPIView):
             'mentee': mentor_serializer.data
         }, status=status.HTTP_201_CREATED)
 
-class SessionCreateAPIView(generics.CreateAPIView):
-    queryset = Session.objects.all()
-    serializer_class = SessionSerializer
+# class SessionCreateAPIView(generics.CreateAPIView):
+#     queryset = Session.objects.all()
+#     serializer_class = SessionSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        try:
-            mentor = Mentor.objects.get(user=request.user)
-        except Mentor.DoesNotExist:
-            return Response({"detail": "Not a mentor"},
-                            status=403)
-        serializer["mentor"] = mentor
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=201)
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.serializer_class(data=request.data)
+#         try:
+#             mentor = Mentor.objects.get(user=request.user)
+#         except Mentor.DoesNotExist:
+#             return Response({"detail": "Not a mentor"},
+#                             status=403)
+#         serializer["mentor"] = mentor
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data, status=201)
 
 
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
@@ -245,3 +246,54 @@ class SearchResourcesApiView(generics.ListAPIView):
              return Response({"error": "no result"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(querysets, many=True)
         return Response(serializer.data)
+    
+    
+    
+class SessionCreateView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Additional custom error handling can go here
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    
+
+
+class SessionBookingCreateView(generics.CreateAPIView):
+    queryset = SessionBooking.objects.all()
+    serializer_class = SessionBookingSerializer
+    # permission_classes = [IsAuthenticatedMentee]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    
+
+class UpcomingSessionsByMentee(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        mentee_id = self.kwargs['mentee_id'] 
+        return Session.objects.filter(sessionbooking__mentee_id=mentee_id, start_date__gte=timezone.now()).order_by('start_date')

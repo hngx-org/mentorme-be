@@ -48,13 +48,13 @@ class UserSerializer(serializers.ModelSerializer):
 
         return value
 
-class SessionSerializer(serializers.ModelSerializer):
-    mentor = serializers.UUIDField(read_only=True)
-    mentee = serializers.UUIDField(read_only=True)
+# class SessionSerializer(serializers.ModelSerializer):
+#     mentor = serializers.UUIDField(read_only=True)
+#     mentee = serializers.UUIDField(read_only=True)
 
-    class Meta:
-        model = Session
-        fields = '__all__'
+#     class Meta:
+#         model = Session
+#         fields = '__all__'
 
 
 
@@ -211,3 +211,31 @@ class UserlogSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
         fields=['first_name','last_name','image']
+
+class SessionBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionBooking
+        fields = '__all__'
+        
+
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = '__all__'
+        
+class SessionBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionBooking
+        fields = '__all__'
+        
+    def create(self, validated_data):
+        # Extract read-only fields if any
+        read_only_field1 = validated_data.pop('session', None)
+        instance = SessionBooking.objects.create(**validated_data)
+
+        # Set the read-only fields explicitly
+        if read_only_field1 is not None:
+            instance.read_only_field1 = read_only_field1
+
+        instance.save()
+        return instance
