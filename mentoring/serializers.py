@@ -34,21 +34,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('id', 'first_name', 'last_name','email', 'image', 'gender', 'bio', 'country')
 
-    # def create(self, validated_data):
-    #     request = self.context['request']
-    #     email = validated_data.get('email')
-    #     print(request.user.email)
-    #     print(email)
-
-    #     if email == request.user.email:
-    #         print(request.user.email)
-    #         validated_data.pop('email')
-    #         instance = CustomUser.objects.create(**validated_data)
-    #     else:            
-    #         instance = CustomUser.objects.create(**validated_data)
-    #     return instance
-    
-
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}"
 
@@ -79,8 +64,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ResourceSerializer(serializers.ModelSerializer):
-    # category = CategorySerializer()  # Nested serialization of Category
-    user = serializers.CharField(read_only=True)
+    category = CategorySerializer()  # Nested serialization of Category
     class Meta:
         model = Resource
         fields = '__all__'
@@ -158,7 +142,6 @@ class MentorSerializer(serializers.ModelSerializer):
 
         return mentor
 class MentorProfileAllSerializer(serializers.ModelSerializer):
-    user=UserSerializer()
     class Meta:
         model=Mentor
         fields='__all__'
@@ -229,11 +212,6 @@ class UserlogSerializer(serializers.ModelSerializer):
         model=CustomUser
         fields=['first_name','last_name','image']
 
-class SessionBookingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SessionBooking
-        fields = '__all__'
-        
 
 class SessionSerializer(serializers.ModelSerializer):
     class Meta:
