@@ -12,7 +12,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=225)
     last_name = models.CharField(max_length=225)
     email = models.EmailField(unique=True)
-    image = models.URLField(max_length=1000)
+    image = models.URLField(max_length=1000, blank=True, null=True)
     gender = models.CharField(max_length=225)
     country = models.CharField(max_length=225)
     bio = models.TextField()
