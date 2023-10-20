@@ -131,7 +131,7 @@ class LoginView(TokenObtainPairView):
                 "user_data": user_data
             }
             if user.role != role.lower():
-                return Response({"message": "You can't access this page"},status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"message": f"User is not a {role} "},status=status.HTTP_403_FORBIDDEN)
             response.data = BaseResponse(responseData, None, 'Login successful').to_dict()
             return Response(response.data, status=status.HTTP_200_OK)
         except AuthenticationFailed as e:
