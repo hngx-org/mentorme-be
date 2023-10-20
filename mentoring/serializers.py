@@ -180,10 +180,6 @@ class MenteeUpdateSerializer(serializers.ModelSerializer):
     'goals' 
 ] 
 
-class UserlogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=CustomUser
-        fields=['first_name','last_name','image']
 
 
 
@@ -195,3 +191,23 @@ class MenteeSerializer(serializers.ModelSerializer):
         model = Mentee
         exclude = ['experience', 'links']
 
+
+class MenteeDetailsSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Mentee
+        fields = '__all__'
+
+
+class MentorDetailsSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Mentor
+        fields = '__all__'
+
+
+
+class UserlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','last_name','image']
