@@ -112,7 +112,7 @@ class LoginView(TokenObtainPairView):
                         "message": "Invalid email or password.",
                         "data": email
                         },
-                    return Response(response,status=status.HTTP_407_PROXY_AUTHENTICATION_REQUIRED)
+                    return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
                     # raise AuthenticationFailed('Invalid email or password.')
 
                 if not user.is_active:
@@ -124,7 +124,13 @@ class LoginView(TokenObtainPairView):
                     }
                     return Response(response,status=status.HTTP_401_UNAUTHORIZED)
             except User.DoesNotExist:
-                raise AuthenticationFailed('Invalid email or password.')
+                response={
+                        "success": False,
+                        "message": "Invalid email or password.",
+                        "data": email
+                        },
+                return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
+                # raise AuthenticationFailed('Invalid email or password.')
 
             #TODO: add a user serializer to return the user data also the profile status
             response =  super().post(request, *args, **kwargs)
