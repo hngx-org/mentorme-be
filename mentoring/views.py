@@ -237,7 +237,7 @@ class SearchResourcesApiView(generics.ListAPIView):
                 Q(description__icontains=search_term)
             )
             if not querysets.exists():
-                return Response({"Message":"No event containing '{}' found!".format(search_term)}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"Message":"No resource containing '{}' found!".format(search_term)}, status=status.HTTP_404_NOT_FOUND)
         except:    
              return Response({"error": "no result"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(querysets, many=True)
