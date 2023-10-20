@@ -25,7 +25,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
     
 
-from .models import Session, Category, Company, Industry, Mentee, Mentor,Mentee,Session, Category
+from .models import Session, Category, Company, Industry, Mentee, Mentor
 
 from users.models import CustomUser
 
