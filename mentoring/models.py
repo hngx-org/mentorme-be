@@ -14,6 +14,7 @@ class Category(models.Model):
 class Resource(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
     title = models.CharField(max_length=100)
+    user = models.ForeignKey(CustomUser, on_delete=models.PROTECT, null=True, blank=True)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     link = models.URLField(null=True, blank=True)
