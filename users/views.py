@@ -64,7 +64,7 @@ class RegisterUser(generics.CreateAPIView):
             new_token.email = user_instance.email
             new_token.action = 'register'
             new_token.token = token
-            new_token.exp_date = time.time() + 300
+            new_token.exp_date = time.time() + 600
             new_token.save()
 
 
