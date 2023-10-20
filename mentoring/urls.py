@@ -20,4 +20,6 @@ urlpatterns=[
     path("create-company/", views.CompanyListCreateAPIView.as_view()),
     path("skill/", views.SkillListCreateAPIView.as_view()),
     path('create-mentor-profile/', MentorCreationView.as_view(), name='create-user-data'),
+    path('mentor/<int:pk>/',views.GetMentorApiView.as_view(),name='Get_all_mentor_by_id'),
+    path('v1/searching/<str:search_term>', views.SearchResourcesApiView.as_view(), name='resouce-search'),
 ]

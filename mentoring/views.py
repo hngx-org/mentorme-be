@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from users.models import CustomUser
 from users.serializers import UserSerializer
 from users.utils import abort
+from django.db.models import Q
+
 
 class MentorCreationView(generics.CreateAPIView):
     permission_classes = [IsAuthenticatedMentor]
@@ -92,6 +94,11 @@ class MentorSessionList(generics.ListAPIView):
         return Response(serializer.data)
 
 
+class GetMentorApiView(generics.RetrieveAPIView):
+    queryset= Mentor.objects.all()
+    serializer_class= MentorProfileAllSerializer
+    lookup_field = "pk"
+    
 
 class CompanyListCreateAPIView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
@@ -220,3 +227,21 @@ class GetloggedUserView(generics.RetrieveAPIView):
         mentee=get_object_or_404(Mentee,user=user)
         response['expertise']=mentee.expertise
         return Response(response,status=status.HTTP_200_OK)    
+    
+class SearchResourcesApiView(generics.ListAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+    def get(self, request, search_term):
+         
+        try:
+            # Use Q objects to search multiple fields with an OR condition
+            querysets = Resource.objects.filter(
+                Q(title__icontains=search_term) |
+                Q(description__icontains=search_term)
+            )
+            if not querysets.exists():
+                return Response({"Message":"No resource containing '{}' found!".format(search_term)}, status=status.HTTP_404_NOT_FOUND)
+        except:    
+             return Response({"error": "no result"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = self.serializer_class(querysets, many=True)
+        return Response(serializer.data)
