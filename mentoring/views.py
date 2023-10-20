@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
@@ -76,7 +76,8 @@ class MentorSessionList(generics.ListAPIView):
     def get_queryset(self):
         mentor_id = self.kwargs.get('mentor_id')
         try:
-            sessions = Session.objects.filter(mentor__user__id=mentor_id)
+            mentor = Mentor.objects.get(id=mentor_id)
+            sessions = Session.objects.filter(mentor=mentor)
             return sessions
         except Session.DoesNotExist:
             return Response(
@@ -88,11 +89,6 @@ class MentorSessionList(generics.ListAPIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
 
 class GetMentorApiView(generics.RetrieveAPIView):
@@ -248,10 +244,14 @@ class SearchResourcesApiView(generics.ListAPIView):
         return Response(serializer.data)
     
     
+
+class AllSessionsView(generics.ListAPIView):
+    queryset=Session.objects.all()
+    serializer_class=SessionSerializer
     
-class SessionCreateView(generics.CreateAPIView):
+class FreeSessionCreateView(generics.CreateAPIView):
     queryset = Session.objects.all()
-    serializer_class = SessionSerializer
+    serializer_class = FreeSessionSerializer
     # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
 
     def create(self, request, *args, **kwargs):
@@ -268,7 +268,44 @@ class SessionCreateView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    
+class OneOffSessionCreateView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = OneOffSessionSerializer
+    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Additional custom error handling can go here
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class RecurringSessionCreateView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = RecurringSessionSerializer
+    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Additional custom error handling can go here
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 
 class SessionBookingCreateView(generics.CreateAPIView):
@@ -297,3 +334,11 @@ class UpcomingSessionsByMentee(generics.ListAPIView):
     def get_queryset(self):
         mentee_id = self.kwargs['mentee_id'] 
         return Session.objects.filter(sessionbooking__mentee_id=mentee_id, start_date__gte=timezone.now()).order_by('start_date')
+
+class UpcomingSessionsForMentor(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        mentor_id = self.kwargs['mentor_id']
+        return Session.objects.filter(mentor_id=mentor_id, start_date__gte=timezone.now()).order_by('start_date')
+    

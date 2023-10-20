@@ -228,14 +228,17 @@ class SessionBookingSerializer(serializers.ModelSerializer):
         model = SessionBooking
         fields = '__all__'
         
-    def create(self, validated_data):
-        # Extract read-only fields if any
-        read_only_field1 = validated_data.pop('session', None)
-        instance = SessionBooking.objects.create(**validated_data)
-
-        # Set the read-only fields explicitly
-        if read_only_field1 is not None:
-            instance.read_only_field1 = read_only_field1
-
-        instance.save()
-        return instance
+class FreeSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ['name', 'id', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','attendees_limit', 'session_type', 'status']
+        
+class OneOffSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ['name', 'id', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','session_type', 'status']
+        
+class RecurringSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ['name', 'id', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','occurence', 'no_of_sessions', 'session_type', 'status']

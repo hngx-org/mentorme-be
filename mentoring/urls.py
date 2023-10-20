@@ -22,8 +22,12 @@ urlpatterns=[
     path('create-mentor-profile/', MentorCreationView.as_view(), name='create-user-data'),
     path('mentor/<str:id>/',views.GetMentorApiView.as_view(),name='Get_all_mentor_by_id'),
     path('v1/searching/<str:search_term>', views.SearchResourcesApiView.as_view(), name='resouce-search'),
-    path('create-session/', views.SessionCreateView.as_view(), name='create-session'),
+    path('create-free-session/', views.FreeSessionCreateView.as_view(), name='create-free-session'),
+    path('create-oneoff-session/', views.OneOffSessionCreateView.as_view(), name='create-oneoff-session'),
+    path('create-recurring-session/', views.RecurringSessionCreateView.as_view(), name='create-recurring-session'),
     path('book-session/', views.SessionBookingCreateView.as_view(), name='book-session'),
     path('mentee/sessions/upcoming/<str:mentee_id>/', views.UpcomingSessionsByMentee.as_view(), name='upcoming-sessions-by-mentee'),
+    path('sessions/all',views.AllSessionsView.as_view(),name='sessions'),
+    path('mentor/sessions/upcoming/<str:mentor_id>/', views.UpcomingSessionsForMentor.as_view(), name='upcoming-sessions-for-mentor'),
 
 ]
