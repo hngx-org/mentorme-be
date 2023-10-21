@@ -64,7 +64,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ResourceSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()  # Nested serialization of Category
+    # category = CategorySerializer(read_only=True)  # Nested serialization of Category
     class Meta:
         model = Resource
         fields = '__all__'
