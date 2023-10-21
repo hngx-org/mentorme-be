@@ -26,7 +26,7 @@ urlpatterns=[
     path('resource/', views.ListResourceApiView.as_view(), name='resouce-list'),
     path('resource/<str:id>', views.RetrieveResourceApiView.as_view(), name='resource-detail'),
     path('resource/update/<str:id>/', views.updateResourceApiView.as_view(), name='resource-update'),
-    path('resource/delete/<str:id>/', views.DeleteResourceApiView.as_view(), name='resource-delete'),
+    path('resource/<str:id>/', views.DeleteResourceApiView.as_view(), name='resource-delete'),
     
     
     path('sessions/create-free-session/', views.FreeSessionCreateView.as_view(), name='create-free-session'),
