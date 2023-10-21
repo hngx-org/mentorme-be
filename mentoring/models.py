@@ -138,15 +138,35 @@ class Session(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
     name = models.CharField(max_length=100)
     description = models.TextField()
-    type = models.CharField(max_length=100)
     start_date = models.DateField()
     start_time = models.TimeField()
-    duration = models.IntegerField()
-    no_of_sessions = models.IntegerField(null=True)
-    relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE)
-    occurence = models.IntegerField(null=True)
+    relevant_topics = models.CharField(max_length=255, null=True)
+    session_url = models.CharField(max_length=255, null=True)
+    tag = models.CharField(max_length=255, null=True)
+    duration = models.IntegerField(null=True)
+    session_state = models.CharField(max_length=100, null=True, default='Pending')
     mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
-    mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
+    attendees_limit = models.IntegerField(null=True)
+    session_type = models.CharField(max_length=100, null=True)
+    occurence = models.IntegerField(null=True)
+    no_of_session = models.IntegerField(null=True)
+    type_of_session = models.CharField(max_length=100, choices=[('f', 'f'), ('o', 'o'), ('r', 'r')])
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
 
     def __str__(self):
         return self.name
+
+class SessionBooking(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    session = models.ForeignKey(Session, on_delete=models.PROTECT, null=True)
+    available_time_slot = models.TimeField()
+    time_zone = models.CharField(max_length=100)
+    subscription_plans = models.CharField(max_length=100)
+    pricing = models.FloatField()
+    notes = models.CharField(max_length=255)
+    mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
+    
+

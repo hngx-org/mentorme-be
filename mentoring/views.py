@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
@@ -38,21 +39,21 @@ class MentorCreationView(generics.CreateAPIView):
             'mentor': mentor_serializer.data
         }, status=status.HTTP_201_CREATED)
 
-class SessionCreateAPIView(generics.CreateAPIView):
-    queryset = Session.objects.all()
-    serializer_class = SessionSerializer
+# class SessionCreateAPIView(generics.CreateAPIView):
+#     queryset = Session.objects.all()
+#     serializer_class = SessionSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        try:
-            mentor = Mentor.objects.get(user=request.user)
-        except Mentor.DoesNotExist:
-            return Response({"detail": "Not a mentor"},
-                            status=403)
-        serializer["mentor"] = mentor
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=201)
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.serializer_class(data=request.data)
+#         try:
+#             mentor = Mentor.objects.get(user=request.user)
+#         except Mentor.DoesNotExist:
+#             return Response({"detail": "Not a mentor"},
+#                             status=403)
+#         serializer["mentor"] = mentor
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data, status=201)
 
 
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
@@ -68,31 +69,6 @@ class CategoryListCreateAPIView(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
-
-
-class MentorSessionList(generics.ListAPIView):
-    serializer_class = SessionSerializer
-
-    def get_queryset(self):
-        mentor_id = self.kwargs.get('mentor_id')
-        try:
-            sessions = Session.objects.filter(mentor__user__id=mentor_id)
-            return sessions
-        except Session.DoesNotExist:
-            return Response(
-                {"error": "No sessions found for the specified mentor."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
 
 class GetMentorApiView(generics.RetrieveAPIView):
@@ -320,3 +296,159 @@ class FilterResourceByCategory(generics.ListAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except categorized_resources is None:
             return Response({"detail":"no resources in this category"}, status=status.HTTP_200_OK)
+    
+    
+class AllSessionsView(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        return Session.objects.all()
+
+
+class FreeSessionsView(generics.ListAPIView):
+    queryset=Session.objects.filter(type_of_session='f')
+    serializer_class=FreeSessionSerializer
+    
+class OneOffSessionsView(generics.ListAPIView):
+    queryset=Session.objects.filter(type_of_session='o')
+    serializer_class=OneOffSessionSerializer
+    
+class RecurringSessionsView(generics.ListAPIView):
+    queryset=Session.objects.filter(type_of_session='r')
+    serializer_class=RecurringSessionSerializer
+
+class FreeSessionCreateView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = FreeSessionSerializer
+    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class OneOffSessionCreateView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = OneOffSessionSerializer
+    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class RecurringSessionCreateView(generics.CreateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = RecurringSessionSerializer
+    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class SessionBookingCreateView(generics.CreateAPIView):
+    queryset = SessionBooking.objects.all()
+    serializer_class = SessionBookingSerializer
+    # permission_classes = [IsAuthenticatedMentee]  # You can add more specific permissions here
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class UpcomingSessionsByMentee(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        mentee_id = self.kwargs['mentee_id'] 
+        return Session.objects.filter(sessionbooking__mentee_id=mentee_id, start_date__gte=timezone.now()).order_by('start_date')
+
+class UpcomingSessionsForMentor(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        mentor_id = self.kwargs['mentor_id']
+        return Session.objects.filter(mentor_id=mentor_id, start_date__gte=timezone.now()).order_by('start_date')
+
+class MentorSessionList(generics.ListAPIView):
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        mentor_id = self.kwargs.get('mentor_id')
+        try:
+            mentor = Mentor.objects.get(id=mentor_id)
+            sessions = Session.objects.filter(mentor=mentor)
+            return sessions
+        except Session.DoesNotExist:
+            return Response(
+                {"error": "No sessions found for the specified mentor."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class MenteeSessionList(generics.ListAPIView):
+    serializer_class = SessionBookingSerializer
+
+    def get_queryset(self):
+        mentee_id = self.kwargs.get('mentee_id')
+        try:
+            mentee = Mentee.objects.get(id=mentee_id)
+            sessions = SessionBooking.objects.filter(mentee=mentee)
+            return sessions
+        except Mentee.DoesNotExist:
+            return SessionBooking.objects.none()
+            
+class SessionUpdateView(generics.UpdateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+    permission_classes = [IsAuthenticatedMentor]  # Add authentication to ensure the user is logged in.
+
+
+class SessionDeleteView(generics.DestroyAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+    permission_classes = [IsAuthenticatedMentor]  # Add authentication to ensure the user is logged in.
+
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
