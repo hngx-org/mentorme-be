@@ -11,7 +11,6 @@ urlpatterns=[
     path("mentee/<str:pk>/", get.MenteeDetail.as_view(), name='mentee-detail'),
     path('user-update',views.UpdateUserView.as_view(),name='user-update'),
     path('profile/',views.GetloggedUserView.as_view(),name='log-profile'),
-    path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
     # path("session/create/", views.SessionCreateAPIView.as_view()),
     path("category/", views.CategoryListCreateAPIView.as_view()),
     path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
@@ -30,12 +29,21 @@ urlpatterns=[
     path('resource/delete/<str:id>/', views.DeleteResourceApiView.as_view(), name='resource-delete'),
     
     
-    path('create-free-session/', views.FreeSessionCreateView.as_view(), name='create-free-session'),
-    path('create-oneoff-session/', views.OneOffSessionCreateView.as_view(), name='create-oneoff-session'),
-    path('create-recurring-session/', views.RecurringSessionCreateView.as_view(), name='create-recurring-session'),
-    path('book-session/', views.SessionBookingCreateView.as_view(), name='book-session'),
-    path('mentee/sessions/upcoming/<str:mentee_id>/', views.UpcomingSessionsByMentee.as_view(), name='upcoming-sessions-by-mentee'),
-    path('sessions/all',views.AllSessionsView.as_view(),name='sessions'),
-    path('mentor/sessions/upcoming/<str:mentor_id>/', views.UpcomingSessionsForMentor.as_view(), name='upcoming-sessions-for-mentor'),
+    path('sessions/create-free-session/', views.FreeSessionCreateView.as_view(), name='create-free-session'),
+    path('sessions/create-oneoff-session/', views.OneOffSessionCreateView.as_view(), name='create-oneoff-session'),
+    path('sessions/create-recurring-session/', views.RecurringSessionCreateView.as_view(), name='create-recurring-session'),
+    path('sessions/mentee/book-session/', views.SessionBookingCreateView.as_view(), name='book-session'),
+    path('sessions/mentee/upcoming/<str:mentee_id>/', views.UpcomingSessionsByMentee.as_view(), name='upcoming-sessions-by-mentee'),
+    path('sessions/all/',views.AllSessionsView.as_view(),name='sessions'),
+    path('sessions/free/',views.FreeSessionsView.as_view(),name='sessions'),
+    path('sessions/oneoff',views.OneOffSessionsView.as_view(),name='sessions'),
+    path('sessions/recurring/',views.RecurringSessionsView.as_view(),name='sessions'),
+    path('sessions/mentor/upcoming/<str:mentor_id>/', views.UpcomingSessionsForMentor.as_view(), name='upcoming-sessions-for-mentor'),
+    path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
+    path('sessions/mentee/<str:mentee_id>/', views.MenteeSessionList.as_view(), name='mentee-session-list'),
+    path('sessions/<uuid:pk>/update/', views.SessionUpdateView.as_view(), name='session-update'),
+    path('sessions/<uuid:pk>/delete/', views.SessionDeleteView.as_view(), name='session-delete'),
+
+
 
 ]

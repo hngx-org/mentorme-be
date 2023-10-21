@@ -218,6 +218,14 @@ class SessionSerializer(serializers.ModelSerializer):
         model = Session
         fields = '__all__'
         
+    def to_representation(self, instance):
+        data = super(SessionSerializer, self).to_representation(instance)
+        
+        # Remove fields with None values
+        data = {key: value for key, value in data.items() if value is not None}
+        
+        return data
+        
 class SessionBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SessionBooking
@@ -226,14 +234,14 @@ class SessionBookingSerializer(serializers.ModelSerializer):
 class FreeSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
-        fields = ['name', 'id', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','attendees_limit', 'session_type', 'status']
+        fields = ['id', 'name', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','attendees_limit', 'session_type', 'session_state', 'session_url', 'tag', 'duration', 'type_of_session']
         
 class OneOffSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
-        fields = ['name', 'id', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','session_type', 'status']
+        fields = ['id', 'name', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','session_type', 'session_state', 'session_url', 'tag', 'duration','type_of_session']
         
 class RecurringSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
-        fields = ['name', 'id', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','occurence', 'no_of_sessions', 'session_type', 'status']
+        fields = ['id', 'name', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','occurence', 'no_of_session', 'session_type', 'session_state', 'session_url', 'tag','type_of_session']

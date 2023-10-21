@@ -140,19 +140,22 @@ class Session(models.Model):
     description = models.TextField()
     start_date = models.DateField()
     start_time = models.TimeField()
-    relevant_topics = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    relevant_topics = models.CharField(max_length=255, null=True)
+    session_url = models.CharField(max_length=255, null=True)
+    tag = models.CharField(max_length=255, null=True)
+    duration = models.IntegerField(null=True)
+    session_state = models.CharField(max_length=100, null=True, default='Pending')
     mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
-    # mentee = models.ForeignKey(Mentee, on_delete=models.CASCADE, null=True)
-    # free
     attendees_limit = models.IntegerField(null=True)
-    
-    # one-off
     session_type = models.CharField(max_length=100, null=True)
-    
-    # recurring
     occurence = models.IntegerField(null=True)
-    no_of_sessions = models.IntegerField(null=True)
-    status = models.CharField(max_length=100, null=True, default='Pending')
+    no_of_session = models.IntegerField(null=True)
+    type_of_session = models.CharField(max_length=100, choices=[('f', 'f'), ('o', 'o'), ('r', 'r')])
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+
     def __str__(self):
         return self.name
 
