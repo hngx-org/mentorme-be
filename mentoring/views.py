@@ -39,23 +39,6 @@ class MentorCreationView(generics.CreateAPIView):
             'mentor': mentor_serializer.data
         }, status=status.HTTP_201_CREATED)
 
-# class SessionCreateAPIView(generics.CreateAPIView):
-#     queryset = Session.objects.all()
-#     serializer_class = SessionSerializer
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.serializer_class(data=request.data)
-#         try:
-#             mentor = Mentor.objects.get(user=request.user)
-#         except Mentor.DoesNotExist:
-#             return Response({"detail": "Not a mentor"},
-#                             status=403)
-#         serializer["mentor"] = mentor
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-
-
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer

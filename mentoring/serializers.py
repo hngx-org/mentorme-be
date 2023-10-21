@@ -48,15 +48,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         return value
 
-# class SessionSerializer(serializers.ModelSerializer):
-#     mentor = serializers.UUIDField(read_only=True)
-#     mentee = serializers.UUIDField(read_only=True)
-
-#     class Meta:
-#         model = Session
-#         fields = '__all__'
-
-
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
