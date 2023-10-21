@@ -41,7 +41,7 @@ urlpatterns=[
     path('sessions/mentor/upcoming/<str:mentor_id>/', views.UpcomingSessionsForMentor.as_view(), name='upcoming-sessions-for-mentor'),
     path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
     path('sessions/mentee/<str:mentee_id>/', views.MenteeSessionList.as_view(), name='mentee-session-list'),
-    path('sessions/<uuid:pk>/update/', views.SessionUpdateView.as_view(), name='session-update'),
+    path('sessions/<uuid:pk>/', views.SessionUpdateView.as_view(), name='session-update'),
     path('sessions/<uuid:pk>/delete/', views.SessionDeleteView.as_view(), name='session-delete'),
 
 
