@@ -70,11 +70,6 @@ class CategoryListCreateAPIView(generics.ListCreateAPIView):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
-
-class GetMentorApiView(generics.RetrieveAPIView):
-    queryset= Mentor.objects.all()
-    serializer_class= MentorProfileAllSerializer
-    lookup_field = "id"
     
 
 class CompanyListCreateAPIView(generics.ListCreateAPIView):

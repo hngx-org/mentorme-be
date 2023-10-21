@@ -150,7 +150,8 @@ class MenteeProfileAllSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     class Meta:
         model=Mentee
-        fields='__all__'  
+        fields='__all__' 
+         
 class MentorUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentor
