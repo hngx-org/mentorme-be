@@ -12,6 +12,7 @@ from users.models import CustomUser
 from users.serializers import UserSerializer
 from users.utils import abort
 from django.db.models import Q
+from rest_framework.views import APIView
 
 
 class MentorCreationView(generics.CreateAPIView):
@@ -40,6 +41,7 @@ class MentorCreationView(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -55,12 +57,14 @@ class CategoryListCreateAPIView(generics.ListCreateAPIView):
 
 
 class GetMentorApiView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset= Mentor.objects.all()
     serializer_class= MentorProfileAllSerializer
     lookup_field = "id"
     
 
 class CompanyListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
 
@@ -77,6 +81,7 @@ class CompanyListCreateAPIView(generics.ListCreateAPIView):
 
 
 class IndustryListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Industry.objects.all()
     serializer_class = IndustrySerializer
 
@@ -92,6 +97,7 @@ class IndustryListCreateAPIView(generics.ListCreateAPIView):
 
 
 class SkillListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
 
@@ -108,6 +114,7 @@ class SkillListCreateAPIView(generics.ListCreateAPIView):
 
 
 class MenteeCreateAPIView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = CustomUser.objects.all()
     serializer_class = MenteeSerializer
     permission_classes = [IsAuthenticatedMentee]  # Add authentication to ensure the user is logged in.
@@ -133,14 +140,17 @@ class MenteeCreateAPIView(generics.CreateAPIView):
         
 
 class AllMentorsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=Mentor.objects.all()
     serializer_class=MentorProfileAllSerializer
 
 class AllMenteeView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=Mentee.objects.all()
     serializer_class=MenteeProfileAllSerializer
 
 class UpdateUserView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=Mentee.objects.all()
     serializer_class=MenteeDetailsSerializer
 
@@ -161,6 +171,7 @@ class UpdateUserView(generics.UpdateAPIView):
     
     
 class GetloggedUserView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=CustomUser.objects.all()
     serializer_class=MenteeDetailsSerializer
     permission_classes = [IsAuthenticated]
@@ -176,6 +187,7 @@ class GetloggedUserView(generics.RetrieveAPIView):
         return Response(serializer.data,status=status.HTTP_200_OK)    
     
 class SearchResourcesApiView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     def get(self, request, search_term):
@@ -194,6 +206,7 @@ class SearchResourcesApiView(generics.ListAPIView):
         return Response(serializer.data)
     
 class CreateResourceApiView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticatedMentor]  # Add authentication to ensure the user is logged in.
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     def post(self,request,*args,**kwargs):
@@ -208,16 +221,19 @@ class CreateResourceApiView(generics.CreateAPIView):
         return Response({"detail":"user is not a mentor"},status=status.HTTP_403_FORBIDDEN)
     
 class ListResourceApiView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
 
 
 class RetrieveResourceApiView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     lookup_field = "id"
 
 class updateResourceApiView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     lookup_field = "id"
@@ -236,6 +252,7 @@ class updateResourceApiView(generics.UpdateAPIView):
  
 
 class DeleteResourceApiView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     lookup_field = "id"
@@ -253,6 +270,7 @@ class DeleteResourceApiView(generics.DestroyAPIView):
                 return Response({"detail":"you no allowed to update this Resource"},status=status.HTTP_403_FORBIDDEN)
 
 class GetUserResource(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     serializer_class = ResourceSerializer
     
     def get(self,request,*args,**kwargs):
@@ -270,6 +288,7 @@ class GetUserResource(generics.ListAPIView):
 
 
 class FilterResourceByCategory(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     serializer_class = ResourceSerializer
     
     def get(self,request,category,*args,**kwargs):
@@ -282,6 +301,7 @@ class FilterResourceByCategory(generics.ListAPIView):
     
     
 class AllSessionsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     serializer_class = SessionSerializer
 
     def get_queryset(self):
@@ -289,21 +309,24 @@ class AllSessionsView(generics.ListAPIView):
 
 
 class FreeSessionsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=Session.objects.filter(type_of_session='f')
     serializer_class=FreeSessionSerializer
     
 class OneOffSessionsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=Session.objects.filter(type_of_session='o')
     serializer_class=OneOffSessionSerializer
     
 class RecurringSessionsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset=Session.objects.filter(type_of_session='r')
     serializer_class=RecurringSessionSerializer
 
 class FreeSessionCreateView(generics.CreateAPIView):
     queryset = Session.objects.all()
     serializer_class = FreeSessionSerializer
-    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+    permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -321,7 +344,7 @@ class FreeSessionCreateView(generics.CreateAPIView):
 class OneOffSessionCreateView(generics.CreateAPIView):
     queryset = Session.objects.all()
     serializer_class = OneOffSessionSerializer
-    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+    permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -339,7 +362,7 @@ class OneOffSessionCreateView(generics.CreateAPIView):
 class RecurringSessionCreateView(generics.CreateAPIView):
     queryset = Session.objects.all()
     serializer_class = RecurringSessionSerializer
-    # permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
+    permission_classes = [IsAuthenticatedMentor]  # You can add more specific permissions here
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -357,7 +380,7 @@ class RecurringSessionCreateView(generics.CreateAPIView):
 class SessionBookingCreateView(generics.CreateAPIView):
     queryset = SessionBooking.objects.all()
     serializer_class = SessionBookingSerializer
-    # permission_classes = [IsAuthenticatedMentee]  # You can add more specific permissions here
+    permission_classes = [IsAuthenticatedMentee]  # You can add more specific permissions here
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -374,12 +397,14 @@ class SessionBookingCreateView(generics.CreateAPIView):
 
 class UpcomingSessionsByMentee(generics.ListAPIView):
     serializer_class = SessionSerializer
+    permission_classes = [IsAuthenticatedMentee]  # Add authentication to ensure the user is logged in.
 
     def get_queryset(self):
         mentee_id = self.kwargs['mentee_id'] 
         return Session.objects.filter(sessionbooking__mentee_id=mentee_id, start_date__gte=timezone.now()).order_by('start_date')
 
 class UpcomingSessionsForMentor(generics.ListAPIView):
+    permission_classes = [IsAuthenticatedMentor]  # Add authentication to ensure the user is logged in.
     serializer_class = SessionSerializer
 
     def get_queryset(self):
@@ -388,6 +413,7 @@ class UpcomingSessionsForMentor(generics.ListAPIView):
 
 class MentorSessionList(generics.ListAPIView):
     serializer_class = SessionSerializer
+    permission_classes = [IsAuthenticatedMentor]  # Add authentication to ensure the user is logged in.
 
     def get_queryset(self):
         mentor_id = self.kwargs.get('mentor_id')
@@ -409,6 +435,8 @@ class MentorSessionList(generics.ListAPIView):
 
 class MenteeSessionList(generics.ListAPIView):
     serializer_class = SessionBookingSerializer
+    permission_classes = [IsAuthenticatedMentee]  # Add authentication to ensure the user is logged in.
+
 
     def get_queryset(self):
         mentee_id = self.kwargs.get('mentee_id')
@@ -435,3 +463,5 @@ class SessionDeleteView(generics.DestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+

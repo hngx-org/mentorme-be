@@ -174,8 +174,6 @@ class MenteeUpdateSerializer(serializers.ModelSerializer):
 
 
 
-
-
 class MenteeSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     class Meta:
@@ -236,3 +234,19 @@ class RecurringSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
         fields = ['id', 'name', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','occurence', 'no_of_session', 'session_type', 'session_state', 'session_url', 'tag','type_of_session']
+        
+
+class CommunitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = '__all__'
+
+class DiscussionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discussion
+        fields = '__all__'
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
