@@ -55,7 +55,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ResourceSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()  # Nested serialization of Category
+    # category = CategorySerializer(read_only=True)  # Nested serialization of Category
     class Meta:
         model = Resource
         fields = '__all__'
@@ -141,7 +141,8 @@ class MenteeProfileAllSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     class Meta:
         model=Mentee
-        fields='__all__'  
+        fields='__all__' 
+         
 class MentorUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentor

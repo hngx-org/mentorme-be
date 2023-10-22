@@ -11,6 +11,10 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+class CourseContent(models.Model):
+    content_id = models.CharField(max_length=250)
+    title=models.CharField(max_length=250)
+    duration = models.IntegerField()
 class Resource(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
     title = models.CharField(max_length=100)
@@ -19,10 +23,9 @@ class Resource(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     link = models.URLField(null=True, blank=True)
     price = models.FloatField()
-
+    CourseContents = models.ForeignKey(CourseContent, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return self.title
-
 
 class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)

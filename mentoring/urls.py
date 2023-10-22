@@ -9,6 +9,7 @@ urlpatterns=[
     path('mentors/all',views.AllMentorsView.as_view(),name='mentor-all'),
     path('mentee/all',views.AllMenteeView.as_view(),name='mentee-all'),
     path("mentee/<str:pk>/", get.MenteeDetail.as_view(), name='mentee-detail'),
+    path('mentor/<str:pk>/',get.GetMentorApiView.as_view(),name='Get_all_mentor_by_id'),
     path('user-update',views.UpdateUserView.as_view(),name='user-update'),
     path('profile/',views.GetloggedUserView.as_view(),name='log-profile'),
     path("category/", views.CategoryListCreateAPIView.as_view()),
@@ -17,7 +18,6 @@ urlpatterns=[
     path("create-company/", views.CompanyListCreateAPIView.as_view()),
     path("skill/", views.SkillListCreateAPIView.as_view()),
     path('create-mentor-profile/', MentorCreationView.as_view(), name='create-user-data'),
-    path('mentor/<str:id>/',views.GetMentorApiView.as_view(),name='Get_all_mentor_by_id'),
     path('resource/searching/<str:search_term>/', views.SearchResourcesApiView.as_view(), name='resource-search'),
     path('resource/filter/<str:category>/', views.FilterResourceByCategory.as_view() , name='resource-filter'),
     path('resource/user/', views.GetUserResource.as_view(), name='user-resource'),
@@ -40,5 +40,7 @@ urlpatterns=[
     path('sessions/mentee/<str:mentee_id>/', views.MenteeSessionList.as_view(), name='mentee-session-list'),
     path('sessions/<uuid:pk>/', views.SessionUpdateView.as_view(), name='session-update'),
     path('sessions/<uuid:pk>/delete/', views.SessionDeleteView.as_view(), name='session-delete'),
-    
+
+
+
 ]
