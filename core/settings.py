@@ -126,10 +126,10 @@ DATABASES = {
 
     'default': {
     'ENGINE': 'django.db.backends.postgresql',
-    'NAME': "verceldb",
-    'USER': "default",
-    'PASSWORD': "GKmHkxT5fJ1F",
-    'HOST': "ep-quiet-truth-77993437-pooler.us-east-1.postgres.vercel-storage.com",
+    'NAME': 'neondb',
+    'USER': 'oluwatimileyin0518',
+    'PASSWORD': 'KWhdX6tbVTo2',
+    'HOST': 'ep-bitter-butterfly-46684153.us-east-2.aws.neon.tech',
     'PORT': '5432',
     'OPTIONS': {'sslmode': 'require'},
   }
