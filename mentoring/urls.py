@@ -41,6 +41,7 @@ urlpatterns=[
     path('sessions/<uuid:pk>/', views.SessionUpdateView.as_view(), name='session-update'),
     path('sessions/<uuid:pk>/delete/', views.SessionDeleteView.as_view(), name='session-delete'),
 
+    path('comments/', views.CommentListCreateView.as_view(), name='comment-list-create'),
 
 
 ]

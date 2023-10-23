@@ -251,3 +251,5 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
