@@ -237,19 +237,3 @@ class RecurringSessionSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'start_date', 'start_time', 'relevant_topics', 'mentor','occurence', 'no_of_session', 'session_type', 'session_state', 'session_url', 'tag','type_of_session']
         
 
-class CommunitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Community
-        fields = '__all__'
-
-class DiscussionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Discussion
-        fields = '__all__'
-
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = '__all__'
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
