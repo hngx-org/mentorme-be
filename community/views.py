@@ -78,7 +78,7 @@ class RetrieveCommunityApiView(generics.RetrieveAPIView):
                 "image": user_image,
                 "data": data
             }
-            return Response(response, status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK) 
 
        
 class JoinCommunityApiView(generics.CreateAPIView):
