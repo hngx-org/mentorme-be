@@ -19,7 +19,6 @@ urlpatterns=[
     path("sessions/mentor/booked", views.SessMentorBookedRetrieveAPIView.as_view()),
     path("sessions/<str:session_id>/book", views.SessionBookUpdateAPIView.as_view()),
     path("sessions/mentee/booked", views.SessMenteeBookedRetrieveAPIView.as_view()),
-    path("sessions/mentee/canceled", views.SessMenteeCanceledRetrieveAPIView.as_view()),
     path("category/", views.CategoryListCreateAPIView.as_view()),
     path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
     path("create-mentee-profile/", views.MenteeCreateAPIView.as_view()),

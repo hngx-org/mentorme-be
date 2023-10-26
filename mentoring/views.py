@@ -167,16 +167,6 @@ class SessMenteeBookedRetrieveAPIView(generics.RetrieveAPIView):
         return Response(sessions.data)
 
 
-class SessMenteeCanceledRetrieveAPIView(generics.GenericAPIView):
-    """Retrieves all canceled booked sessions of a mentee (POV: Mentee)"""
-
-    def get_serializer_class(self):
-        return None
-
-    def get_serializer(self):
-        return None
-
-
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
     queryset = Category.objects.all()
