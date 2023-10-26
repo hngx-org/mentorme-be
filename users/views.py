@@ -94,18 +94,43 @@ class LoginView(TokenObtainPairView):
             try:
                 email = serializer.initial_data['email']
                 password = serializer.initial_data['password']
+                role=serializer.initial_data['role']
             except:
+                response={
+                        "success": False,
+                        "message": 'Email and password required',
+                        "data": "null"
+                        },
+                return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
                 raise AuthenticationFailed('Email and password required')
 
             try:
                 user = User.objects.get(email=email)
                 if not user.check_password(password):
-                    raise AuthenticationFailed('Invalid email or password.')
+                    response={
+                        "success": False,
+                        "message": "Invalid email or password.",
+                        "data": email
+                        },
+                    return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
+                    # raise AuthenticationFailed('Invalid email or password.')
 
                 if not user.is_active:
-                    raise AuthenticationFailed(f'Your account is not active.')
+                    # raise AuthenticationFailed('Your account is not active.')
+                    response = {
+                    "success": False,
+                    "message": "Your account is not active",
+                    "data": user.email
+                    }
+                    return Response(response,status=status.HTTP_401_UNAUTHORIZED)
             except User.DoesNotExist:
-                raise AuthenticationFailed('Invalid email or password.')
+                response={
+                        "success": False,
+                        "message": "Invalid email or password.",
+                        "data": email
+                        },
+                return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
+                # raise AuthenticationFailed('Invalid email or password.')
 
             #TODO: add a user serializer to return the user data also the profile status
             response =  super().post(request, *args, **kwargs)
@@ -123,7 +148,8 @@ class LoginView(TokenObtainPairView):
                 "Authorization": response.data,
                 "user_data": user_data
             }
-
+            if user.role != role.lower():
+                return Response({"message": f"User is not a {role} "},status=status.HTTP_403_FORBIDDEN)
             response.data = BaseResponse(responseData, None, 'Login successful').to_dict()
             return Response(response.data, status=status.HTTP_200_OK)
         except AuthenticationFailed as e:

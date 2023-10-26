@@ -33,6 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True)
+    role=serializers.CharField(max_length=225)
     default_error_messages = {
         'no_active_account': 'Your account is yet to be activated',
         'invalid_credentials': 'Invalid email or password'
