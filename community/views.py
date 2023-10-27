@@ -64,11 +64,8 @@ class RetrieveCommunityApiView(generics.RetrieveAPIView):
         id = kwargs.get("id")
         if id is not None:
             community = get_object_or_404(Community, id=id)
-            
-            # Try to get the user's image from the related Member
-            member = Members.objects.filter(community=community).first()
-            
-            if member:
+
+            if member := Members.objects.filter(community=community).first():
                 user_image = member.user.image
             else:
                 user_image = None

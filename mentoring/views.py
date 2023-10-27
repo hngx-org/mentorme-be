@@ -199,7 +199,10 @@ class SearchResourcesApiView(generics.ListAPIView):
                 Q(description__icontains=search_term)
             )
             if not querysets.exists():
-                return Response({"Message":"No resource containing '{}' found!".format(search_term)}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"Message": f"No resource containing '{search_term}' found!"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
         except:    
              return Response({"error": "no result"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(querysets, many=True)
@@ -239,16 +242,15 @@ class updateResourceApiView(generics.UpdateAPIView):
     lookup_field = "id"
     
     def perform_update(self, serializer):
-            mail=self.request.user.email
-            user=get_object_or_404(CustomUser,email=mail)
-            resource = self.get_object()
-            if resource.user == user:
-                if user.role.lower() == 'mentor':
-                    serializer.save()
-                    return Response({"message": "Resource updated successfully."}, status=status.HTTP_200_OK)
-                return Response({"detail":"user is not a mentor"},status=status.HTTP_403_FORBIDDEN)
-            else:
-                return Response({"detail":"you no allowed to update this Resource"},status=status.HTTP_403_FORBIDDEN)
+        mail=self.request.user.email
+        user=get_object_or_404(CustomUser,email=mail)
+        resource = self.get_object()
+        if resource.user != user:
+            return Response({"detail":"you no allowed to update this Resource"},status=status.HTTP_403_FORBIDDEN)
+        if user.role.lower() == 'mentor':
+            serializer.save()
+            return Response({"message": "Resource updated successfully."}, status=status.HTTP_200_OK)
+        return Response({"detail":"user is not a mentor"},status=status.HTTP_403_FORBIDDEN)
  
 
 class DeleteResourceApiView(generics.DestroyAPIView):
@@ -258,16 +260,15 @@ class DeleteResourceApiView(generics.DestroyAPIView):
     lookup_field = "id"
 
     def perform_destroy(self, instance):
-            mail=self.request.user.email
-            user=get_object_or_404(CustomUser,email=mail)
-            resource = self.get_object()
-            if resource.user == user:
-                if user.role.lower() == 'mentor':
-                    super().perform_destroy(instance)
-                    return Response({"message": "Resource deleted successfully."}, status=status.HTTP_204_NO_CONTENT )
-                return Response({"detail":"user is not a mentor"},status=status.HTTP_403_FORBIDDEN)
-            else:
-                return Response({"detail":"you no allowed to update this Resource"},status=status.HTTP_403_FORBIDDEN)
+        mail=self.request.user.email
+        user=get_object_or_404(CustomUser,email=mail)
+        resource = self.get_object()
+        if resource.user != user:
+            return Response({"detail":"you no allowed to update this Resource"},status=status.HTTP_403_FORBIDDEN)
+        if user.role.lower() == 'mentor':
+            super().perform_destroy(instance)
+            return Response({"message": "Resource deleted successfully."}, status=status.HTTP_204_NO_CONTENT )
+        return Response({"detail":"user is not a mentor"},status=status.HTTP_403_FORBIDDEN)
 
 class GetUserResource(generics.ListAPIView):
     permission_classes = [IsAuthenticated]  # Add authentication to ensure the user is logged in.
@@ -277,12 +278,11 @@ class GetUserResource(generics.ListAPIView):
         mail=self.request.user.email
         user=get_object_or_404(CustomUser,email=mail)
         try:
-            if user.role.lower() == 'mentor':
-                created_resources = Resource.objects.filter(user=user)
-                serializer = ResourceSerializer(created_resources,many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
+            if user.role.lower() != 'mentor':
                 return Response({"detail":"user is not a mentor"},status=status.HTTP_403_FORBIDDEN)
+            created_resources = Resource.objects.filter(user=user)
+            serializer = ResourceSerializer(created_resources,many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except created_resources is None:
             return Response({"detail":"you have not created any resource"},status=status.HTTP_200_OK)
 
@@ -419,8 +419,7 @@ class MentorSessionList(generics.ListAPIView):
         mentor_id = self.kwargs.get('mentor_id')
         try:
             mentor = Mentor.objects.get(id=mentor_id)
-            sessions = Session.objects.filter(mentor=mentor)
-            return sessions
+            return Session.objects.filter(mentor=mentor)
         except Session.DoesNotExist:
             return Response(
                 {"error": "No sessions found for the specified mentor."},
@@ -442,8 +441,7 @@ class MenteeSessionList(generics.ListAPIView):
         mentee_id = self.kwargs.get('mentee_id')
         try:
             mentee = Mentee.objects.get(id=mentee_id)
-            sessions = SessionBooking.objects.filter(mentee=mentee)
-            return sessions
+            return SessionBooking.objects.filter(mentee=mentee)
         except Mentee.DoesNotExist:
             return SessionBooking.objects.none()
             

@@ -109,29 +109,26 @@ class MentorSerializer(serializers.ModelSerializer):
             user = request.user
 
             validated_data['user'] = user
-        
+
         company_id = validated_data.pop('company')
         industry_id = validated_data.pop('industry')
         skills_id = validated_data.pop('skills')
         education_id = validated_data.pop('education')
         certification_id = validated_data.pop('certification')
-        
+
         certification, created = Certification.objects.get_or_create(**certification_id)
         industry, created = Industry.objects.get_or_create(**industry_id)
         skills, created = Skill.objects.get_or_create(**skills_id)
         company, created = Company.objects.get_or_create(**company_id)
         education, created = Education.objects.get_or_create(**education_id)
-        
+
         validated_data['certification'] = certification
-        validated_data['industry'] = industry        
+        validated_data['industry'] = industry
         validated_data['skills'] = skills
-        validated_data['company'] = company        
+        validated_data['company'] = company
         validated_data['education'] = education
 
-        mentor = Mentor.objects.create(**validated_data)
-
-
-        return mentor
+        return Mentor.objects.create(**validated_data)
 class MentorProfileAllSerializer(serializers.ModelSerializer):
     class Meta:
         model=Mentor
