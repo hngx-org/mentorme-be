@@ -62,13 +62,12 @@ class RetrieveCommunityApiView(generics.RetrieveAPIView):
         mail = request.user.email
         user = get_object_or_404(CustomUser, email=mail)
         id = kwargs.get("id")
-        if id is not None:
+        if id:
             community = get_object_or_404(Community, id=id)
-
+            
+            user_image = None
             if member := Members.objects.filter(community=community).first():
                 user_image = member.user.image
-            else:
-                user_image = None
 
             data = CommunitySerializer(community, many=False).data
             response = {
