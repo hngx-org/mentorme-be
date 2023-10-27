@@ -61,8 +61,8 @@ class RetrieveCommunityApiView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         mail = request.user.email
         user = get_object_or_404(CustomUser, email=mail)
-        id = kwargs.get("id")
-        if id:
+        
+        if id := kwargs.get("id"):
             community = get_object_or_404(Community, id=id)
             
             user_image = None
