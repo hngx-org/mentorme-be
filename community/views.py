@@ -61,21 +61,20 @@ class RetrieveCommunityApiView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         mail = request.user.email
         user = get_object_or_404(CustomUser, email=mail)
-        id = kwargs.get("id")
-        if id is not None:
+        
+        if id := kwargs.get("id"):
             community = get_object_or_404(Community, id=id)
-
+            
+            user_image = None
             if member := Members.objects.filter(community=community).first():
                 user_image = member.user.image
-            else:
-                user_image = None
 
             data = CommunitySerializer(community, many=False).data
             response = {
                 "image": user_image,
                 "data": data
             }
-            return Response(response, status=status.HTTP_200_OK)
+            return Response(response, status=status.HTTP_200_OK) 
 
        
 class JoinCommunityApiView(generics.CreateAPIView):
