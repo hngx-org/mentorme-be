@@ -24,7 +24,7 @@ urlpatterns=[
     path('resource/create/', views.CreateResourceApiView.as_view(), name='resource-create'),
     path('resource/', views.ListResourceApiView.as_view(), name='resouce-list'),
     path('resource/<str:id>', views.RetrieveResourceApiView.as_view(), name='resource-detail'),
-    path('resource/update/<str:id>/', views.updateResourceApiView.as_view(), name='resource-update'),
+    path('resource/<str:id>/', views.updateResourceApiView.as_view(), name='resource-update'),
     path('resource/<str:id>/', views.DeleteResourceApiView.as_view(), name='resource-delete'),
     path('sessions/create-free-session/', views.FreeSessionCreateView.as_view(), name='create-free-session'),
     path('sessions/create-oneoff-session/', views.OneOffSessionCreateView.as_view(), name='create-oneoff-session'),
@@ -39,6 +39,6 @@ urlpatterns=[
     path('sessions/mentor/<str:mentor_id>/', views.MentorSessionList.as_view(), name='mentor-session-list'),
     path('sessions/mentee/<str:mentee_id>/', views.MenteeSessionList.as_view(), name='mentee-session-list'),
     path('sessions/<uuid:pk>/', views.SessionUpdateView.as_view(), name='session-update'),
-    path('sessions/<uuid:pk>/delete/', views.SessionDeleteView.as_view(), name='session-delete'),
+    path('sessions/<uuid:pk>/', views.SessionDeleteView.as_view(), name='session-delete'),
 
 ]
