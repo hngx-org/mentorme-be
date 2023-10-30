@@ -3,27 +3,32 @@ from users.models import *
 import uuid
 
 
-
 class Community(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, null=True)
-    discussions = models.ManyToManyField('Discussion')
-
-
-class Comment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    text = models.CharField(max_length=300)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=255)
+    
+class Members(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    community = models.ForeignKey(Community, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, related_name='member', on_delete=models.PROTECT)
 
 
 class Discussion(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    author = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
-    title = models.CharField(max_length=255)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    topic = models.CharField(max_length=255)
     note = models.CharField(max_length=255)
-    comments = models.ForeignKey(Comment, on_delete=models.PROTECT)
-    image = models.URLField(null=True, blank=True)
+    image = models.CharField(max_length=255, null=True)
+    community = models.ForeignKey(Community, on_delete=models.CASCADE)
+    creator = models.ForeignKey(CustomUser, related_name='author', on_delete=models.PROTECT)
+
+class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4, unique=True)
+    user = models.ForeignKey(CustomUser, related_name='user_comment', on_delete=models.PROTECT)
+    discusion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
+    text = models.TextField()
+
+
 
 
 
