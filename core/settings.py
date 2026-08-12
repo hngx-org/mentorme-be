@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -114,25 +115,24 @@ DATABASES = {
     # }
 
 
+        'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('PGDATABASE'),
+        'USER': config('PGUSER'),
+        'PASSWORD': config('PGPASSWORD'),
+        'HOST': config('PGHOST'),
+        'PORT': '5432',
+    }
+
 #     'default': {
 #     'ENGINE': 'django.db.backends.postgresql',
 #     'NAME': 'neondb',
 #     'USER': 'oluwatimileyin0518',
-#     'PASSWORD': 'SJMZO3hAj2id',
-#     'HOST': 'ep-delicate-pine-98196338.us-east-2.aws.neon.tech',
+#     'PASSWORD': 'KWhdX6tbVTo2',
+#     'HOST': 'ep-bitter-butterfly-46684153.us-east-2.aws.neon.tech',
 #     'PORT': '5432',
 #     'OPTIONS': {'sslmode': 'require'},
 #   }
-
-    'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': "verceldb",
-    'USER': "default",
-    'PASSWORD': "GKmHkxT5fJ1F",
-    'HOST': "ep-quiet-truth-77993437-pooler.us-east-1.postgres.vercel-storage.com",
-    'PORT': '5432',
-    'OPTIONS': {'sslmode': 'require'},
-  }
 }
 
 
